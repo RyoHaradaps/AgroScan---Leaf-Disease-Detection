@@ -10,6 +10,9 @@ import random
 import time
 import base64
 from io import BytesIO
+from predict import predict_image
+from remedies import get_remedy
+from ai_advisor import get_ai_advice
 
 # Import custom styling functions and helpers
 from styles import inject_styles, bar_gradient, badge_cls, card_accent
@@ -30,30 +33,6 @@ st.set_page_config(
 # ==============================================
 # Apply all custom CSS, fonts, and background animations
 inject_styles()
-
-# ==============================================
-# DISEASE DATABASE
-# ==============================================
-# Mock database of diseases with insights and treatment solutions
-# In production, this would come from a real database or API
-DISEASE_DB = {
-    "Apple Scab": {
-        "insight": "Apple Scab is a fungal disease caused by Venturia inaequalis. It appears as olive-green to black spots on leaves and fruits.",
-        "solution": "Apply fungicides like captan or sulfur. Remove and destroy infected fallen leaves."
-    },
-    "Late Blight": {
-        "insight": "Late blight is caused by Phytophthora infestans. It causes dark, water-soaked lesions on leaves.",
-        "solution": "Apply copper-based fungicides preventively. Remove infected plants immediately."
-    },
-    "Powdery Mildew": {
-        "insight": "Powdery mildew appears as white, powdery fungal growth on leaf surfaces.",
-        "solution": "Apply sulfur or neem oil-based fungicides. Ensure adequate spacing for air flow."
-    },
-    "Healthy Leaf": {
-        "insight": "Your leaf appears healthy with no visible signs of disease.",
-        "solution": "Continue regular monitoring and maintain good agricultural practices."
-    }
-}
 
 # ==============================================
 # SESSION STATE INITIALIZATION
@@ -127,36 +106,50 @@ with col_left:
     # Analyze button - disabled when no image uploaded
     run = st.button("⬡ Run Analysis", disabled=(uploaded is None), use_container_width=True)
 
-# ==============================================
-# ANALYSIS PROCESSING
-# ==============================================
-# Triggered when "Run Analysis" button is clicked and image exists
-if run and uploaded:
-    # Clear previous results
-    st.session_state.result = None
-    
-    # Show spinner during processing
-    with st.spinner("Running model inference..."):
-        # Simulate processing delay (replace with actual ML inference)
-        time.sleep(1.5)
-        
-        # Mock prediction - randomly select disease and confidence
-        # In production, replace with actual model prediction
-        diseases = list(DISEASE_DB.keys())
-        disease = random.choice(diseases)
-        confidence = random.randint(75, 98)
-        healthy = disease == "Healthy Leaf"
-        
-        # Store results in session state
-        st.session_state.result = {
-            "disease": disease,                              # Detected disease name
-            "confidence": confidence,                        # Confidence percentage
-            "healthy": healthy,                              # Boolean for healthy leaf
-            "severity": "none" if healthy else "low",        # Severity level
-            "plant": "Tomato",                               # Plant type (hardcoded for demo)
-            "insight": DISEASE_DB[disease]["insight"],       # Disease insight
-            "remedy": DISEASE_DB[disease]["solution"]        # Treatment solution
-        }
+    # ==============================================
+    # ANALYSIS PROCESSING
+    # ==============================================
+    if run and uploaded:
+        st.session_state.result = None
+
+        with st.spinner("Running model inference..."):
+            time.sleep(1.5)
+
+            # ✅ REAL MODEL PREDICTION
+            disease, confidence = predict_image(img)
+
+            # convert to %
+            confidence = round(confidence * 100)
+
+            # detect healthy
+            healthy = "Healthy" in disease
+
+            # severity logic
+            if healthy:
+                severity = "none"
+            elif confidence > 85:
+                severity = "low"
+            elif confidence > 60:
+                severity = "medium"
+            else:
+                severity = "high"
+
+            # remedy from your mapping
+            remedy = get_remedy(disease)
+            # 🤖 AI ADVISORY (OLLAMA)
+            ai_advice = get_ai_advice(disease, confidence)
+
+            # store result
+            st.session_state.result = {
+                "disease": disease,
+                "confidence": confidence,
+                "healthy": healthy,
+                "severity": severity,
+                "plant": disease.split("_")[0],  # auto extract plant name
+                "insight": f"Model predicts {disease} with {confidence}% confidence.",
+                "remedy": remedy,
+                "ai_advice": ai_advice
+            }
 
 # ==============================================
 # RIGHT COLUMN - RESULTS DISPLAY
@@ -194,6 +187,14 @@ with col_right:
         # --- Card 4: Suggested Solution ---
         # Teal accent for solution card
         st.markdown(f'<div class="ag-card" style="--card-accent:#2ef2e2;"><div class="ag-card-hdr"><span class="ag-icon">🌱</span>Suggested Solution</div><p class="ag-remedy">{res["remedy"]}</p></div>', unsafe_allow_html=True)
+        
+        # --- Card 5: AI Advisory ---
+        st.markdown(
+            f'<div class="ag-card" style="--card-accent:#A4F000;">'
+            f'<div class="ag-card-hdr"><span class="ag-icon">🤖</span>AI Advisory</div>'
+            f'<p class="ag-remedy">{res["ai_advice"]}</p></div>',
+            unsafe_allow_html=True
+        )
     
     # ==========================================
     # CASE 2: No Results Yet (Empty State)
@@ -205,6 +206,7 @@ with col_right:
         st.markdown('<div class="ag-card"><div class="ag-card-hdr"><span class="ag-icon">🧬</span>System Insight</div><p class="ag-empty">AI insights will appear here...</p></div>', unsafe_allow_html=True)
         st.markdown('<div class="ag-card" style="--card-accent:#2ef2e2;"><div class="ag-card-hdr"><span class="ag-icon">🌱</span>Suggested Solution</div><p class="ag-empty">Treatment recommendations will appear here...</p></div>', unsafe_allow_html=True)
 
+    
 # ==============================================
 # FOOTER
 # ==============================================
