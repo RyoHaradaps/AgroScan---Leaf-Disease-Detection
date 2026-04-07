@@ -29,6 +29,57 @@ st.set_page_config(
 )
 
 # ==============================================
+# FORCE PERMANENT DARK MODE - ULTRA STRONG VERSION
+# ==============================================
+st.markdown("""
+<head>
+    <meta name="color-scheme" content="dark">
+    <meta name="supported-color-schemes" content="dark">
+    <meta name="darkreader-lock" content="yes">
+    <meta name="theme-color" content="#060d10">
+</head>
+<style>
+    /* ULTRA AGGRESSIVE DARK MODE FORCE */
+    :root, html, body, .stApp, [data-testid="stAppViewContainer"] {
+        color-scheme: dark !important;
+        forced-color-adjust: none !important;
+        background-color: #060d10 !important;
+        background: #060d10 !important;
+    }
+    
+    /* Force ALL elements to stay dark */
+    *, *::before, *::after {
+        color-scheme: dark !important;
+        forced-color-adjust: none !important;
+        -webkit-forced-color-adjust: none !important;
+    }
+    
+    /* Prevent any light mode injection */
+    @media (prefers-color-scheme: light) {
+        :root, html, body {
+            color-scheme: dark !important;
+            background-color: #060d10 !important;
+        }
+    }
+</style>
+<script>
+    // Force dark mode via JavaScript (most reliable)
+    document.documentElement.style.colorScheme = 'dark';
+    document.documentElement.style.backgroundColor = '#060d10';
+    document.body.style.backgroundColor = '#060d10';
+    
+    // Monitor for any changes and reapply
+    const observer = new MutationObserver(function() {
+        document.documentElement.style.colorScheme = 'dark';
+        document.documentElement.style.backgroundColor = '#060d10';
+        document.body.style.backgroundColor = '#060d10';
+    });
+    observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+</script>
+""", unsafe_allow_html=True)
+
+
+# ==============================================
 # STYLE INJECTION
 # ==============================================
 # Apply all custom CSS, fonts, and background animations

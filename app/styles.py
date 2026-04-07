@@ -10,6 +10,34 @@ _FONT_URL = (
 )
 
 CSS_CONTENT = """
+
+/* ============================================
+   FORCE DARK MODE - PREVENT BROWSER OVERRIDE
+   ============================================ */
+:root {
+    color-scheme: dark !important;
+    forced-color-adjust: none !important;
+    background-color: #060d10 !important;
+}
+
+html, body, .stApp, [data-testid="stAppViewContainer"] {
+    background-color: #060d10 !important;
+    color-scheme: dark !important;
+}
+
+/* Force all text to remain visible */
+.ag-title, .ag-subtitle, .ag-label, .ag-disease, .ag-insight, .ag-remedy {
+    color-scheme: dark !important;
+}
+
+/* Rest of your existing CSS continues here... */
+:root {
+    --lime: #a4f000;
+    --teal: #2ef2e2;
+    /* ... rest of your variables ... */
+}
+
+
 :root {
     --lime: #a4f000;
     --teal: #2ef2e2;
@@ -25,6 +53,106 @@ CSS_CONTENT = """
     --fD: 'Orbitron', monospace;
     --fB: 'Syne', sans-serif;
     --fM: 'JetBrains Mono', monospace;
+}
+
+/* ============================================
+   IMPROVED TEXT READABILITY
+   ============================================ */
+/* Make body text larger and clearer */
+body, .stMarkdown, p, div {
+    font-size: 1rem !important;
+    line-height: 1.6 !important;
+    letter-spacing: 0.3px !important;
+}
+
+/* Make disease name more visible */
+.ag-disease, .ag-disease-ok {
+    font-size: 1.6rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 1px !important;
+    text-shadow: 0 0 12px rgba(164,240,0,0.4) !important;
+}
+
+/* Improve insight text */
+.ag-insight {
+    font-size: 0.95rem !important;
+    line-height: 1.8 !important;
+    color: #d8ece4 !important;
+    font-weight: 400 !important;
+}
+
+/* Improve remedy text */
+.ag-remedy {
+    font-size: 0.95rem !important;
+    line-height: 1.8 !important;
+    color: #d8ece4 !important;
+    background: rgba(46,242,226,0.06) !important;
+}
+
+/* Make labels clearer */
+.ag-label {
+    font-size: 0.7rem !important;
+    letter-spacing: 5px !important;
+    font-weight: 600 !important;
+}
+
+/* Card headers */
+.ag-card-hdr {
+    font-size: 0.65rem !important;
+    letter-spacing: 4px !important;
+    font-weight: 600 !important;
+    color: #a4f000 !important;
+}
+
+/* Confidence percentage */
+.ag-conf-pct {
+    font-size: 1.6rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 1px !important;
+}
+
+/* Plant name */
+.ag-plant {
+    font-size: 0.8rem !important;
+    letter-spacing: 3px !important;
+    font-weight: 500 !important;
+    color: #7ec8e0 !important;
+}
+
+/* Empty state text */
+.ag-empty {
+    font-size: 0.9rem !important;
+    font-style: normal !important;
+    color: #7a9a8a !important;
+}
+
+/* Badge text */
+.ag-badge {
+    font-size: 0.65rem !important;
+    letter-spacing: 2.5px !important;
+    font-weight: 600 !important;
+}
+
+/* GLOW EFFECTS FOR BETTER VISIBILITY */
+.ag-disease {
+    text-shadow: 0 0 15px rgba(164,240,0,0.5),
+                 0 0 5px rgba(164,240,0,0.3) !important;
+    font-weight: 800 !important;
+}
+
+.ag-disease-ok {
+    text-shadow: 0 0 15px rgba(94,250,94,0.5) !important;
+}
+
+/* Subtle glow for insight text */
+.ag-insight {
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+}
+
+/* Make confidence percentage pop */
+.ag-conf-pct {
+    text-shadow: 0 0 8px rgba(164,240,0,0.3) !important;
+    font-weight: 800 !important;
 }
 
 /* COMPLETE RESET - Remove ALL default spacing */
