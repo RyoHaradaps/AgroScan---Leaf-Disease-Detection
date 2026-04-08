@@ -1,4 +1,4 @@
-# app.py — AgroScan AI Main Application
+# app.py — AgroScan AI Main Application (Refactored with template.py)
 # ======================================
 # Main Streamlit application for leaf disease detection.
 # Handles UI layout, image upload, analysis processing, and result display.
@@ -6,7 +6,6 @@
 
 import streamlit as st
 from PIL import Image
-import random
 import time
 import base64
 from io import BytesIO
@@ -15,17 +14,20 @@ from remedies import get_remedy
 from ai_advisor import get_ai_advice
 
 # Import custom styling functions and helpers
-from styles import inject_styles, bar_gradient, badge_cls, card_accent
+from styles import inject_styles
+from template import (
+    AppConfig, ResultProcessor, UIComponents, 
+    MessageTemplates, Validators
+)
 
 # ==============================================
 # PAGE CONFIGURATION
 # ==============================================
-# Must be the first Streamlit command - sets browser tab title, icon, and layout
 st.set_page_config(
-    page_title="AgroScan AI",           # Browser tab title
-    page_icon="🌿",                     # Browser tab icon
-    layout="wide",                      # Use full-width layout
-    initial_sidebar_state="collapsed",  # Hide sidebar by default
+    page_title=AppConfig.name,
+    page_icon=AppConfig.icon,
+    layout="wide",
+    initial_sidebar_state="collapsed",
 )
 
 # ==============================================
@@ -78,71 +80,61 @@ st.markdown("""
 </script>
 """, unsafe_allow_html=True)
 
-
 # ==============================================
 # STYLE INJECTION
 # ==============================================
-# Apply all custom CSS, fonts, and background animations
 inject_styles()
 
 # ==============================================
 # SESSION STATE INITIALIZATION
 # ==============================================
-# Session state persists across reruns, storing analysis results
 if "result" not in st.session_state:
-    st.session_state.result = None  # Will store detection results when available
+    st.session_state.result = None
 
 # ==============================================
 # HEADER SECTION
 # ==============================================
-# Main title area with logo, title, and subtitle
-st.markdown("""
+st.markdown(f"""
 <div class="ag-header">
     <div class="ag-logo-row">
-        <span class="ag-logo-leaf">🌿</span>
-        <span class="ag-title">AgroScan AI</span>
+        <span class="ag-logo-leaf">{AppConfig.icon}</span>
+        <span class="ag-title">{AppConfig.name}</span>
     </div>
-    <div class="ag-subtitle">Smart Leaf Disease Detection System</div>
+    <div class="ag-subtitle">{AppConfig.tagline}</div>
 </div>
 """, unsafe_allow_html=True)
 
 # ==============================================
 # TWO-COLUMN LAYOUT
 # ==============================================
-# Left column: Image upload and analysis controls
-# Right column: Results display (disease, confidence, insights, solutions)
-col_left, col_right = st.columns([0.42, 0.58], gap="small")
+col_left, col_right = st.columns(
+    [AppConfig.left_col_ratio, AppConfig.right_col_ratio], 
+    gap="small"
+)
 
 # ==============================================
 # LEFT COLUMN - IMAGE UPLOAD SECTION
 # ==============================================
 with col_left:
-    # Section label
     st.markdown('<div class="ag-label">Image Analysis</div>', unsafe_allow_html=True)
     
-    # File uploader widget - accepts JPG, JPEG, PNG
     uploaded = st.file_uploader(
         "Upload",
-        type=["jpg", "jpeg", "png"],
+        type=AppConfig.allowed_formats,
         label_visibility="collapsed"
     )
     
-    # If an image has been uploaded, display preview and metadata
     if uploaded:
-        # Open and convert image to RGB
         img = Image.open(uploaded).convert("RGB")
         
-        # Reset file pointer and calculate file size
         uploaded.seek(0)
         size_kb = len(uploaded.read()) / 1024
         size_str = f"{round(size_kb, 1)} KB" if size_kb < 1024 else f"{round(size_kb / 1024, 2)} MB"
         
-        # Convert image to base64 for inline HTML display
         buffered = BytesIO()
         img.save(buffered, format="PNG")
         img_b64 = base64.b64encode(buffered.getvalue()).decode()
         
-        # Display image preview with badge and metadata
         st.markdown(f"""
         <div class="ag-img-frame">
             <img src="data:image/png;base64,{img_b64}" alt="leaf">
@@ -154,116 +146,101 @@ with col_left:
         </div>
         """, unsafe_allow_html=True)
     
-    # Analyze button - disabled when no image uploaded
     run = st.button("⬡ Run Analysis", disabled=(uploaded is None), use_container_width=True)
 
-    # ==============================================
-    # ANALYSIS PROCESSING
-    # ==============================================
     if run and uploaded:
         st.session_state.result = None
 
         with st.spinner("Running model inference..."):
             time.sleep(1.5)
 
-            # ✅ REAL MODEL PREDICTION
+            # Real model prediction
             disease, confidence = predict_image(img)
-
-            # convert to %
-            confidence = round(confidence * 100)
-
-            # detect healthy
-            healthy = "Healthy" in disease
-
-            # severity logic
-            if healthy:
-                severity = "none"
-            elif confidence > 85:
-                severity = "low"
-            elif confidence > 60:
-                severity = "medium"
-            else:
-                severity = "high"
-
-            # remedy from your mapping
+            
+            # Get remedy and AI advice
             remedy = get_remedy(disease)
-            # 🤖 AI ADVISORY (OLLAMA)
             ai_advice = get_ai_advice(disease, confidence)
 
-            # store result
-            st.session_state.result = {
-                "disease": disease,
-                "confidence": confidence,
-                "healthy": healthy,
-                "severity": severity,
-                "plant": disease.split("_")[0],  # auto extract plant name
-                "insight": f"Model predicts {disease} with {confidence}% confidence.",
-                "remedy": remedy,
-                "ai_advice": ai_advice
-            }
+            # Process using template (centralized logic)
+            st.session_state.result = ResultProcessor.process_prediction(
+                disease, confidence, remedy, ai_advice
+            )
 
 # ==============================================
 # RIGHT COLUMN - RESULTS DISPLAY
 # ==============================================
 with col_right:
-    # Retrieve results from session state
     res = st.session_state.result
     
-    # ==========================================
-    # CASE 1: Results Available
-    # ==========================================
     if res:
-        # Get accent color based on severity (for left border)
-        ac = card_accent(res["severity"], res["healthy"])
+        # Card 1: Detected Disease
+        disease_content = UIComponents.render_disease_card(
+            res["disease"], res["plant"], 
+            res["severity"], res["healthy"]
+        )
+        UIComponents.render_result_card(
+            title=MessageTemplates.get_card_titles()["disease"],
+            icon="🔬",
+            content_html=disease_content,
+            accent_color=res["accent_color"]
+        )
         
-        # --- Card 1: Detected Disease ---
-        if res["healthy"]:
-            # Healthy leaf display
-            disease_html = f'<div class="ag-disease-ok">✓ {res["disease"]}</div><div class="ag-plant">{res["plant"]}</div><span class="ag-badge b-none">● No Disease Detected</span>'
-        else:
-            # Diseased leaf display with severity badge
-            disease_html = f'<div class="ag-disease">{res["disease"]}</div><div class="ag-plant">{res["plant"]}</div><span class="ag-badge {badge_cls(res["severity"])}">● Severity: {res["severity"].upper()}</span>'
+        # Card 2: Confidence Score
+        conf_content = UIComponents.render_confidence_card(res["confidence"])
+        UIComponents.render_result_card(
+            title=MessageTemplates.get_card_titles()["confidence"],
+            icon="📊",
+            content_html=conf_content,
+            accent_color=res["accent_color"]
+        )
         
-        st.markdown(f'<div class="ag-card" style="--card-accent:{ac};"><div class="ag-card-hdr"><span class="ag-icon">🔬</span>Detected Disease</div>{disease_html}</div>', unsafe_allow_html=True)
+        # Card 3: System Insight
+        UIComponents.render_result_card(
+            title=MessageTemplates.get_card_titles()["insight"],
+            icon="🧬",
+            content_html=f'<p class="ag-insight">{res["insight"]}</p>',
+            accent_color=res["accent_color"]
+        )
         
-        # --- Card 2: Confidence Score ---
-        # Get gradient color based on confidence percentage
-        grad = bar_gradient(res["confidence"])
-        conf_html = f'<div class="ag-conf-row"><span class="ag-conf-lbl">Model Certainty</span><span class="ag-conf-pct">{res["confidence"]}%</span></div><div class="ag-bar-track"><div class="ag-bar-fill" style="width:{res["confidence"]}%;background:{grad};"></div></div>'
-        st.markdown(f'<div class="ag-card" style="--card-accent:{ac};"><div class="ag-card-hdr"><span class="ag-icon">📊</span>Confidence Score</div>{conf_html}</div>', unsafe_allow_html=True)
+        # Card 4: Suggested Solution
+        UIComponents.render_result_card(
+            title=MessageTemplates.get_card_titles()["solution"],
+            icon="🌱",
+            content_html=f'<p class="ag-remedy">{res["remedy"]}</p>',
+            accent_color="#2ef2e2"
+        )
         
-        # --- Card 3: System Insight ---
-        st.markdown(f'<div class="ag-card" style="--card-accent:{ac};"><div class="ag-card-hdr"><span class="ag-icon">🧬</span>System Insight</div><p class="ag-insight">{res["insight"]}</p></div>', unsafe_allow_html=True)
-        
-        # --- Card 4: Suggested Solution ---
-        # Teal accent for solution card
-        st.markdown(f'<div class="ag-card" style="--card-accent:#2ef2e2;"><div class="ag-card-hdr"><span class="ag-icon">🌱</span>Suggested Solution</div><p class="ag-remedy">{res["remedy"]}</p></div>', unsafe_allow_html=True)
-        
-        # --- Card 5: AI Advisory ---
-        st.markdown(
-            f'<div class="ag-card" style="--card-accent:#A4F000;">'
-            f'<div class="ag-card-hdr"><span class="ag-icon">🤖</span>AI Advisory</div>'
-            f'<p class="ag-remedy">{res["ai_advice"]}</p></div>',
-            unsafe_allow_html=True
+        # Card 5: AI Advisory
+        UIComponents.render_result_card(
+            title=MessageTemplates.get_card_titles()["ai_advisor"],
+            icon="🤖",
+            content_html=f'<p class="ag-remedy">{res["ai_advice"]}</p>',
+            accent_color="#A4F000"
         )
     
-    # ==========================================
-    # CASE 2: No Results Yet (Empty State)
-    # ==========================================
     else:
-        # Display placeholder cards with instructions
-        st.markdown('<div class="ag-card"><div class="ag-card-hdr"><span class="ag-icon">🔬</span>Detected Disease</div><p class="ag-empty">Upload an image to begin analysis...</p></div>', unsafe_allow_html=True)
-        st.markdown('<div class="ag-card"><div class="ag-card-hdr"><span class="ag-icon">📊</span>Confidence Score</div><p class="ag-empty">Awaiting prediction results...</p></div>', unsafe_allow_html=True)
-        st.markdown('<div class="ag-card"><div class="ag-card-hdr"><span class="ag-icon">🧬</span>System Insight</div><p class="ag-empty">AI insights will appear here...</p></div>', unsafe_allow_html=True)
-        st.markdown('<div class="ag-card" style="--card-accent:#2ef2e2;"><div class="ag-card-hdr"><span class="ag-icon">🌱</span>Suggested Solution</div><p class="ag-empty">Treatment recommendations will appear here...</p></div>', unsafe_allow_html=True)
+        # Empty state
+        empty_msgs = MessageTemplates.get_empty_state_messages()
+        titles = MessageTemplates.get_card_titles()
+        
+        UIComponents.render_empty_card(
+            titles["disease"], "🔬", empty_msgs["disease"]
+        )
+        UIComponents.render_empty_card(
+            titles["confidence"], "📊", empty_msgs["confidence"]
+        )
+        UIComponents.render_empty_card(
+            titles["insight"], "🧬", empty_msgs["insight"]
+        )
+        UIComponents.render_empty_card(
+            titles["solution"], "🌱", empty_msgs["solution"]
+        )
 
-    
 # ==============================================
 # FOOTER
 # ==============================================
-# App footer with version info and technology credits
-st.markdown("""
+st.markdown(f"""
 <div class="ag-footer">
-    AgroScan AI v1.0 • Powered by <span class="hl">PyTorch</span> • Advanced Computer Vision
+    {AppConfig.name} {AppConfig.version} • Powered by <span class="hl">PyTorch</span> • Advanced Computer Vision
 </div>
 """, unsafe_allow_html=True)
