@@ -163,7 +163,6 @@ class UIComponents:
     @staticmethod
     def render_result_card(title: str, icon: str, content_html: str, accent_color: str):
         """Render a result card with HTML content"""
-        # Build the complete card HTML
         card_html = f'''
         <div class="ag-card" style="--card-accent:{accent_color};">
             <div class="ag-card-hdr">
@@ -173,7 +172,6 @@ class UIComponents:
             {content_html}
         </div>
         '''
-        # Use markdown with unsafe_allow_html=True to render HTML properly
         st.markdown(card_html, unsafe_allow_html=True)
     
     @staticmethod
@@ -189,7 +187,7 @@ class UIComponents:
     
     @staticmethod
     def render_disease_card(disease: str, plant: str, severity: str, is_healthy: bool, accent_color: str):
-        """Directly render disease card - NO STRING RETURN"""
+        """Directly render disease card"""
         if is_healthy:
             st.markdown(f'''
             <div class="ag-card" style="--card-accent:{accent_color};">
@@ -220,15 +218,15 @@ class UIComponents:
             ''', unsafe_allow_html=True)
     
     @staticmethod
-    def render_confidence_card(confidence: int, accent_color: str):
-        """Directly render confidence card"""
+    def render_confidence_insight_card(confidence: int, insight: str, accent_color: str):
+        """Render combined Confidence + Insight card"""
         from styles import bar_gradient
         grad = bar_gradient(confidence)
         st.markdown(f'''
         <div class="ag-card" style="--card-accent:{accent_color};">
             <div class="ag-card-hdr">
                 <span class="ag-icon">📊</span>
-                Confidence Score
+                Analysis Details
             </div>
             <div class="ag-conf-row">
                 <span class="ag-conf-lbl">Model Certainty</span>
@@ -237,19 +235,9 @@ class UIComponents:
             <div class="ag-bar-track">
                 <div class="ag-bar-fill" style="width:{confidence}%;background:{grad};"></div>
             </div>
-        </div>
-        ''', unsafe_allow_html=True)
-    
-    @staticmethod
-    def render_insight_card(insight: str, accent_color: str):
-        """Directly render insight card"""
-        st.markdown(f'''
-        <div class="ag-card" style="--card-accent:{accent_color};">
-            <div class="ag-card-hdr">
-                <span class="ag-icon">🧬</span>
-                System Insight
+            <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(164,240,0,0.15);">
+                <p class="ag-insight" style="margin-bottom: 0;">{insight}</p>
             </div>
-            <p class="ag-insight">{insight}</p>
         </div>
         ''', unsafe_allow_html=True)
     
@@ -292,10 +280,8 @@ class ResultProcessor:
         """Process raw prediction into formatted result"""
         confidence_pct = round(confidence * 100) if confidence <= 1 else confidence
         
-        # Format the disease name for display
         formatted_disease = TextFormatter.format_disease_name(disease)
         
-        # Check if healthy
         is_healthy = any(
             keyword.lower() in formatted_disease.lower() or keyword.lower() in disease.lower()
             for keyword in Thresholds.healthy_keywords

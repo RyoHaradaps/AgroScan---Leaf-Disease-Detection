@@ -182,26 +182,21 @@ with col_right:
             accent_color=res["accent_color"]
         )
         
-        # Card 2: Confidence Score
-        UIComponents.render_confidence_card(
+        # Card 2: Combined Confidence + Insight Card
+        UIComponents.render_confidence_insight_card(
             confidence=res["confidence"],
-            accent_color=res["accent_color"]
-        )
-        
-        # Card 3: System Insight
-        UIComponents.render_insight_card(
             insight=res["insight"],
             accent_color=res["accent_color"]
         )
         
-        # Card 4: Suggested Solution
+        # Card 3: Suggested Solution
         UIComponents.render_solution_card(remedy=res["remedy"])
         
-        # Card 5: AI Advisory
+        # Card 4: AI Advisory
         UIComponents.render_ai_card(ai_advice=res["ai_advice"])
     
     else:
-        # Empty state for all 5 cards
+        # Empty state for 4 cards
         empty_msgs = MessageTemplates.get_empty_state_messages()
         titles = MessageTemplates.get_card_titles()
         
@@ -209,15 +204,11 @@ with col_right:
             titles["disease"], "🔬", empty_msgs["disease"]
         )
         UIComponents.render_empty_card(
-            titles["confidence"], "📊", empty_msgs["confidence"]
-        )
-        UIComponents.render_empty_card(
-            titles["insight"], "🧬", empty_msgs["insight"]
+            "Analysis Details", "📊", "Confidence score and insights will appear here..."
         )
         UIComponents.render_empty_card(
             titles["solution"], "🌱", empty_msgs["solution"]
         )
-        # Note: Empty state for AI Advisory (Card 5)
         UIComponents.render_empty_card(
             titles["ai_advisor"], "🤖", "AI advice will appear here..."
         )
