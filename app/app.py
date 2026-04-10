@@ -173,7 +173,7 @@ with col_right:
     res = st.session_state.result
     
     if res:
-        # Card 1: Detected Disease - Using direct render method
+        # Card 1: Detected Disease
         UIComponents.render_disease_card(
             disease=res["disease"],
             plant=res["plant"],
@@ -182,7 +182,7 @@ with col_right:
             accent_color=res["accent_color"]
         )
         
-        # Card 2: Confidence Score - FIXED: Added accent_color parameter
+        # Card 2: Confidence Score
         UIComponents.render_confidence_card(
             confidence=res["confidence"],
             accent_color=res["accent_color"]
@@ -201,7 +201,7 @@ with col_right:
         UIComponents.render_ai_card(ai_advice=res["ai_advice"])
     
     else:
-        # Empty state
+        # Empty state for all 5 cards
         empty_msgs = MessageTemplates.get_empty_state_messages()
         titles = MessageTemplates.get_card_titles()
         
@@ -216,6 +216,10 @@ with col_right:
         )
         UIComponents.render_empty_card(
             titles["solution"], "🌱", empty_msgs["solution"]
+        )
+        # Note: Empty state for AI Advisory (Card 5)
+        UIComponents.render_empty_card(
+            titles["ai_advisor"], "🤖", "AI advice will appear here..."
         )
 
 # ==============================================
