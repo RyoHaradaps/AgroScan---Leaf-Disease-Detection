@@ -17,7 +17,7 @@ from ai_advisor import get_ai_advice
 from styles import inject_styles
 from template import (
     AppConfig, ResultProcessor, UIComponents, 
-    MessageTemplates, Validators
+    MessageTemplates, Validators, SeverityCalculator
 )
 
 # ==============================================
@@ -173,50 +173,32 @@ with col_right:
     res = st.session_state.result
     
     if res:
-        # Card 1: Detected Disease
-        disease_content = UIComponents.render_disease_card(
-            res["disease"], res["plant"], 
-            res["severity"], res["healthy"]
-        )
-        UIComponents.render_result_card(
-            title=MessageTemplates.get_card_titles()["disease"],
-            icon="🔬",
-            content_html=disease_content,
+        # Card 1: Detected Disease - Using direct render method
+        UIComponents.render_disease_card(
+            disease=res["disease"],
+            plant=res["plant"],
+            severity=res["severity"],
+            is_healthy=res["healthy"],
             accent_color=res["accent_color"]
         )
         
-        # Card 2: Confidence Score
-        conf_content = UIComponents.render_confidence_card(res["confidence"])
-        UIComponents.render_result_card(
-            title=MessageTemplates.get_card_titles()["confidence"],
-            icon="📊",
-            content_html=conf_content,
+        # Card 2: Confidence Score - FIXED: Added accent_color parameter
+        UIComponents.render_confidence_card(
+            confidence=res["confidence"],
             accent_color=res["accent_color"]
         )
         
         # Card 3: System Insight
-        UIComponents.render_result_card(
-            title=MessageTemplates.get_card_titles()["insight"],
-            icon="🧬",
-            content_html=f'<p class="ag-insight">{res["insight"]}</p>',
+        UIComponents.render_insight_card(
+            insight=res["insight"],
             accent_color=res["accent_color"]
         )
         
         # Card 4: Suggested Solution
-        UIComponents.render_result_card(
-            title=MessageTemplates.get_card_titles()["solution"],
-            icon="🌱",
-            content_html=f'<p class="ag-remedy">{res["remedy"]}</p>',
-            accent_color="#2ef2e2"
-        )
+        UIComponents.render_solution_card(remedy=res["remedy"])
         
         # Card 5: AI Advisory
-        UIComponents.render_result_card(
-            title=MessageTemplates.get_card_titles()["ai_advisor"],
-            icon="🤖",
-            content_html=f'<p class="ag-remedy">{res["ai_advice"]}</p>',
-            accent_color="#A4F000"
-        )
+        UIComponents.render_ai_card(ai_advice=res["ai_advice"])
     
     else:
         # Empty state
