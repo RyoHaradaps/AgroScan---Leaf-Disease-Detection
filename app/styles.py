@@ -372,6 +372,7 @@ html, body {
     overflow: hidden;
     background: rgba(0,0,0,0.5);
     position: relative;
+    margin-bottom: 16px;
 }
 
 .ag-img-frame img {
@@ -430,6 +431,7 @@ html, body {
     border-radius: 10px !important;
     cursor: pointer !important;
     transition: all 0.3s ease !important;
+    margin-top: 16px !important;
 }
 
 .stButton > button:hover:not(:disabled) {
@@ -644,6 +646,58 @@ html, body {
 ::-webkit-scrollbar-track { background: var(--bg-root); }
 ::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--lime); }
+
+/* Remove extra space at bottom */
+html, body, .stApp {
+    background-color: #060d10 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body::after, .stApp::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Ensure no extra spacing after footer */
+.block-container {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.stVerticalBlock {
+    gap: 0 !important;
+}
+
+/* Make footer stick to absolute bottom with no extra space */
+.ag-footer {
+    margin-bottom: 0 !important;
+    margin-top: 20px !important;
+    position: relative;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+/* Remove any default Streamlit bottom padding */
+.main > div {
+    padding-bottom: 0 !important;
+}
+
+[data-testid="stAppViewContainer"] {
+    padding-bottom: 0 !important;
+}
+
+/* Force dark background all the way */
+body {
+    background-color: #060d10 !important;
+    min-height: 100vh;
+}
+
+.stApp {
+    background-color: #060d10 !important;
+    min-height: 100vh;
+}
 """
 
 ORBS_HTML = """

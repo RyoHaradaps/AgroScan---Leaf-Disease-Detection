@@ -36,7 +36,7 @@ class StylingConfig:
     # ===== SECTION LABEL STYLES (Image Analysis heading) =====
     section_label_font_size: str = "0.7rem"
     section_label_letter_spacing: str = "4px"
-    section_label_margin_bottom: str = "20px"
+    section_label_margin_bottom: str = "30px"
     section_label_margin_top: str = "20px"
     section_label_alignment: str = "left"  # left, center, right
     

@@ -137,6 +137,9 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+# Add spacer here
+st.markdown('<div style="height: 40px;"></div>', unsafe_allow_html=True)
+
 # ==============================================
 # TWO-COLUMN LAYOUT
 # ==============================================
@@ -180,11 +183,6 @@ with col_left:
         st.markdown(f"""
         <div class="ag-img-frame">
             <img src="data:image/png;base64,{img_b64}" alt="leaf">
-            <div class="ag-img-badge">● LIVE ANALYSIS</div>
-        </div>
-        <div class="ag-file-meta">
-            <span class="ag-file-name">📄 {uploaded.name}</span>
-            <span class="ag-file-size">{size_str}</span>
         </div>
         """, unsafe_allow_html=True)
     
