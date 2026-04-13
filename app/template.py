@@ -1,5 +1,8 @@
 # template.py — Centralized Configuration & Reusable Components
 # ==============================================================
+# This file contains all configuration, business logic, and UI components
+# for the AgroScan AI application. All styling is centrally controlled
+# through the StylingConfig class for easy maintenance.
 
 from dataclasses import dataclass
 from typing import Dict, Tuple, Optional
@@ -11,44 +14,89 @@ import streamlit as st
 
 @dataclass(frozen=True)
 class AppConfig:
-    """Central app configuration"""
+    """Central app configuration - Change app-wide settings here"""
     name: str = "AgroScan AI"
     version: str = "v1.0"
     tagline: str = "Smart Leaf Disease Detection System"
     icon: str = "🌿"
     
-    # Layout
+    # Layout ratios (left column: image upload, right column: results)
     left_col_ratio: float = 0.42
     right_col_ratio: float = 0.58
     
-    # File upload
+    # File upload settings
     allowed_formats: Tuple[str, ...] = ("jpg", "jpeg", "png")
     max_file_size_mb: int = 10
 
 
 @dataclass(frozen=True)
+class StylingConfig:
+    """Centralized styling configuration - Change all card styles here"""
+    
+    # ===== DISEASE CARD STYLES =====
+    disease_font_size: str = "1.6rem"           # Disease name font size
+    disease_font_weight: str = "800"            # Disease name boldness
+    disease_margin_bottom: str = "14px"          # Space below disease name
+    
+    plant_font_size: str = "0.85rem"            # Plant name font size
+    plant_letter_spacing: str = "2px"           # Plant name letter spacing
+    plant_margin_bottom: str = "20px"           # Space below plant name
+    plant_color: str = "#7ec8e0"                # Plant name color
+    
+    badge_font_size: str = "0.7rem"             # Severity badge font size
+    badge_padding: str = "4px 14px"             # Badge padding (top/bottom left/right)
+    
+    # ===== ANALYSIS CARD STYLES =====
+    card_header_font_size: str = "0.7rem"       # Card title font size
+    card_header_letter_spacing: str = "4px"     # Card title letter spacing
+    card_icon_size: str = "1.1rem"              # Card icon size
+    
+    confidence_label_size: str = "0.9rem"       # "Model Certainty" text size
+    confidence_label_spacing: str = "2px"       # Label letter spacing
+    confidence_percent_size: str = "1.8rem"     # Percentage number size
+    confidence_percent_weight: str = "800"      # Percentage boldness
+    
+    progress_bar_height: str = "8px"            # Height of confidence bar
+    progress_bar_margin_bottom: str = "28px"    # Space below progress bar
+    
+    insight_font_size: str = "0.9rem"           # Insight text size
+    insight_line_height: str = "0.5"            # Insight line height
+    
+    # ===== CARD SPACING =====
+    card_content_margin_bottom: str = "20px"    # Bottom margin for card content
+    divider_margin_top: str = "8px"             # Space above divider line
+    divider_padding_top: str = "18px"           # Space above insight text
+    divider_border_width: str = "1px"           # Divider line thickness
+    
+    # ===== SOLUTION & AI CARDS =====
+    remedy_font_size: str = "0.95rem"           # Remedy/AI text size
+    remedy_line_height: str = "1.8"             # Remedy/AI line height
+    remedy_padding: str = "10px 14px"           # Remedy text padding
+
+
+@dataclass(frozen=True)
 class Thresholds:
     """Confidence and severity thresholds"""
-    high_confidence: int = 85
-    medium_confidence: int = 60
-    low_confidence: int = 0
+    high_confidence: int = 85      # Above this = low severity
+    medium_confidence: int = 60    # 60-85% = medium severity
+    low_confidence: int = 0        # Below 60% = high severity
     healthy_keywords: Tuple[str, ...] = ("Healthy", "health", "good condition")
 
 
 @dataclass(frozen=True)
 class UIColors:
-    """Centralized color scheme"""
-    lime: str = "#a4f000"
-    teal: str = "#2ef2e2"
-    warn: str = "#ffb347"
-    danger: str = "#ff5c6a"
-    ok: str = "#5efa5e"
-    bg_root: str = "#060d10"
-    border: str = "#14303f"
-    border_hi: str = "#1d4a5c"
-    mid: str = "#4a8a7a"
-    dim: str = "#1e4a3a"
-    white: str = "#e8f4f0"
+    """Centralized color scheme - Change all colors here"""
+    lime: str = "#a4f000"          # Primary accent color
+    teal: str = "#2ef2e2"          # Secondary accent color
+    warn: str = "#ffb347"          # Warning color (medium severity)
+    danger: str = "#ff5c6a"        # Danger color (high severity)
+    ok: str = "#5efa5e"            # Success color (healthy)
+    bg_root: str = "#060d10"       # Background color
+    border: str = "#14303f"        # Border color
+    border_hi: str = "#1d4a5c"     # Highlight border
+    mid: str = "#4a8a7a"           # Mid-tone text
+    dim: str = "#1e4a3a"           # Dim text
+    white: str = "#e8f4f0"         # White text
 
 
 # ==============================================
@@ -56,7 +104,7 @@ class UIColors:
 # ==============================================
 
 class TextFormatter:
-    """Text formatting utilities"""
+    """Text formatting utilities for cleaning up model outputs"""
     
     @staticmethod
     def format_disease_name(disease: str) -> str:
@@ -74,7 +122,7 @@ class TextFormatter:
     
     @staticmethod
     def extract_plant_name(disease: str) -> str:
-        """Extract plant name from disease string"""
+        """Extract plant name from disease string (e.g., 'Potato' from 'Potato_Late_blight')"""
         if "_" in disease:
             plant = disease.split("_")[0]
         else:
@@ -93,6 +141,7 @@ class SeverityCalculator:
     
     @staticmethod
     def calculate(confidence: int, is_healthy: bool) -> str:
+        """Calculate severity based on confidence and health status"""
         if is_healthy:
             return "none"
         
@@ -105,6 +154,7 @@ class SeverityCalculator:
     
     @staticmethod
     def get_accent_color(severity: str, is_healthy: bool) -> str:
+        """Get accent color based on severity level"""
         if is_healthy:
             return UIColors.ok
         
@@ -117,6 +167,7 @@ class SeverityCalculator:
     
     @staticmethod
     def get_badge_class(severity: str) -> str:
+        """Get CSS badge class for severity level"""
         badge_map = {
             "none": "b-none",
             "low": "b-low",
@@ -127,14 +178,16 @@ class SeverityCalculator:
 
 
 class MessageTemplates:
-    """Centralized message templates"""
+    """Centralized message templates for all text content"""
     
     @staticmethod
     def get_insight(disease: str, confidence: int) -> str:
+        """Generate system insight message"""
         return f"Model predicts {disease} with {confidence}% confidence."
     
     @staticmethod
     def get_empty_state_messages() -> Dict[str, str]:
+        """Empty state placeholder messages"""
         return {
             "disease": "Upload an image to begin analysis...",
             "confidence": "Awaiting prediction results...",
@@ -144,6 +197,7 @@ class MessageTemplates:
     
     @staticmethod
     def get_card_titles() -> Dict[str, str]:
+        """Card title templates"""
         return {
             "disease": "Detected Disease",
             "confidence": "Confidence Score",
@@ -158,15 +212,15 @@ class MessageTemplates:
 # ==============================================
 
 class UIComponents:
-    """Reusable UI component builder"""
+    """Reusable UI component builder with centralized styling"""
     
     @staticmethod
     def render_result_card(title: str, icon: str, content_html: str, accent_color: str):
-        """Render a result card with HTML content"""
+        """Render a result card with HTML content (base method)"""
         card_html = f'''
         <div class="ag-card" style="--card-accent:{accent_color};">
-            <div class="ag-card-hdr">
-                <span class="ag-icon">{icon}</span>
+            <div class="ag-card-hdr" style="font-size: {StylingConfig.card_header_font_size}; letter-spacing: {StylingConfig.card_header_letter_spacing};">
+                <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">{icon}</span>
                 {title}
             </div>
             {content_html}
@@ -187,83 +241,90 @@ class UIComponents:
     
     @staticmethod
     def render_disease_card(disease: str, plant: str, severity: str, is_healthy: bool, accent_color: str):
-        """Directly render disease card"""
+        """Render disease card with centralized styling from StylingConfig"""
         if is_healthy:
             st.markdown(f'''
             <div class="ag-card" style="--card-accent:{accent_color};">
-                <div class="ag-card-hdr">
-                    <span class="ag-icon">🔬</span>
+                <div class="ag-card-hdr" style="font-size: {StylingConfig.card_header_font_size}; letter-spacing: {StylingConfig.card_header_letter_spacing};">
+                    <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">🔬</span>
                     Detected Disease
                 </div>
-                <div class="ag-disease-ok">✓ {disease}</div>
-                <div class="ag-plant">{plant}</div>
-                <span class="ag-badge {SeverityCalculator.get_badge_class(severity)}">
-                    ● No Disease Detected
-                </span>
+                <div style="margin-bottom: {StylingConfig.card_content_margin_bottom};">
+                    <div class="ag-disease-ok" style="font-size: {StylingConfig.disease_font_size}; font-weight: {StylingConfig.disease_font_weight}; margin-bottom: {StylingConfig.disease_margin_bottom};">✓ {disease}</div>
+                    <div class="ag-plant" style="font-size: {StylingConfig.plant_font_size}; letter-spacing: {StylingConfig.plant_letter_spacing}; margin-bottom: {StylingConfig.plant_margin_bottom}; color: {StylingConfig.plant_color};">{plant}</div>
+                    <span class="ag-badge {SeverityCalculator.get_badge_class(severity)}" style="font-size: {StylingConfig.badge_font_size}; padding: {StylingConfig.badge_padding}; display: inline-block;">
+                        ● No Disease Detected
+                    </span>
+                </div>
             </div>
             ''', unsafe_allow_html=True)
         else:
             st.markdown(f'''
             <div class="ag-card" style="--card-accent:{accent_color};">
-                <div class="ag-card-hdr">
-                    <span class="ag-icon">🔬</span>
+                <div class="ag-card-hdr" style="font-size: {StylingConfig.card_header_font_size}; letter-spacing: {StylingConfig.card_header_letter_spacing};">
+                    <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">🔬</span>
                     Detected Disease
                 </div>
-                <div class="ag-disease">{disease}</div>
-                <div class="ag-plant">{plant}</div>
-                <span class="ag-badge {SeverityCalculator.get_badge_class(severity)}">
-                    ● Severity: {severity.upper()}
-                </span>
+                <div style="margin-bottom: {StylingConfig.card_content_margin_bottom};">
+                    <div class="ag-disease" style="font-size: {StylingConfig.disease_font_size}; font-weight: {StylingConfig.disease_font_weight}; margin-bottom: {StylingConfig.disease_margin_bottom};">{disease}</div>
+                    <div class="ag-plant" style="font-size: {StylingConfig.plant_font_size}; letter-spacing: {StylingConfig.plant_letter_spacing}; margin-bottom: {StylingConfig.plant_margin_bottom}; color: {StylingConfig.plant_color};">{plant}</div>
+                    <span class="ag-badge {SeverityCalculator.get_badge_class(severity)}" style="font-size: {StylingConfig.badge_font_size}; padding: {StylingConfig.badge_padding}; display: inline-block;">
+                        ● Severity: {severity.upper()}
+                    </span>
+                </div>
             </div>
             ''', unsafe_allow_html=True)
     
     @staticmethod
     def render_confidence_insight_card(confidence: int, insight: str, accent_color: str):
-        """Render combined Confidence + Insight card"""
+        """Render combined confidence + insight card with centralized styling"""
         from styles import bar_gradient
         grad = bar_gradient(confidence)
-        st.markdown(f'''
+        
+        html = f'''
         <div class="ag-card" style="--card-accent:{accent_color};">
-            <div class="ag-card-hdr">
-                <span class="ag-icon">📊</span>
+            <div class="ag-card-hdr" style="font-size: {StylingConfig.card_header_font_size}; letter-spacing: {StylingConfig.card_header_letter_spacing};">
+                <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">📊</span>
                 Analysis Details
             </div>
-            <div class="ag-conf-row">
-                <span class="ag-conf-lbl">Model Certainty</span>
-                <span class="ag-conf-pct">{confidence}%</span>
+            <div class="ag-conf-row" style="margin-bottom: {StylingConfig.confidence_label_size == '0.9rem' and '20px' or StylingConfig.progress_bar_margin_bottom};">
+                <span class="ag-conf-lbl" style="font-size: {StylingConfig.confidence_label_size}; letter-spacing: {StylingConfig.confidence_label_spacing};">Model Certainty</span>
+                <span class="ag-conf-pct" style="font-size: {StylingConfig.confidence_percent_size}; font-weight: {StylingConfig.confidence_percent_weight};">{confidence}%</span>
             </div>
-            <div class="ag-bar-track">
+            <div class="ag-bar-track" style="margin-bottom: {StylingConfig.progress_bar_margin_bottom}; height: {StylingConfig.progress_bar_height};">
                 <div class="ag-bar-fill" style="width:{confidence}%;background:{grad};"></div>
             </div>
-            <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(164,240,0,0.15);">
-                <p class="ag-insight" style="margin-bottom: 0;">{insight}</p>
+            <div style="margin-top: {StylingConfig.divider_margin_top}; padding-top: {StylingConfig.divider_padding_top}; border-top: {StylingConfig.divider_border_width} solid rgba(164,240,0,0.2);">
+                <p class="ag-insight" style="margin-bottom: 0; font-size: {StylingConfig.insight_font_size}; line-height: {StylingConfig.insight_line_height};">{insight}</p>
             </div>
         </div>
-        ''', unsafe_allow_html=True)
+        '''
+        
+        st.markdown(html, unsafe_allow_html=True)
     
     @staticmethod
     def render_solution_card(remedy: str):
-        """Directly render solution card"""
+        """Render solution card with centralized styling"""
         st.markdown(f'''
         <div class="ag-card" style="--card-accent:#2ef2e2;">
-            <div class="ag-card-hdr">
-                <span class="ag-icon">🌱</span>
+            <div class="ag-card-hdr" style="font-size: {StylingConfig.card_header_font_size}; letter-spacing: {StylingConfig.card_header_letter_spacing};">
+                <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">🌱</span>
                 Suggested Solution
             </div>
-            <p class="ag-remedy">{remedy}</p>
+            <p class="ag-remedy" style="font-size: {StylingConfig.remedy_font_size}; line-height: {StylingConfig.remedy_line_height}; padding: {StylingConfig.remedy_padding};">{remedy}</p>
         </div>
         ''', unsafe_allow_html=True)
     
     @staticmethod
     def render_ai_card(ai_advice: str):
-        """Directly render AI advisory card"""
+        """Render AI advisory card with centralized styling"""
         st.markdown(f'''
         <div class="ag-card" style="--card-accent:#A4F000;">
-            <div class="ag-card-hdr">
-                <span class="ag-icon">🤖</span>
+            <div class="ag-card-hdr" style="font-size: {StylingConfig.card_header_font_size}; letter-spacing: {StylingConfig.card_header_letter_spacing};">
+                <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">🤖</span>
                 AI Advisory
             </div>
-            <p class="ag-remedy">{ai_advice}</p>
+            <p class="ag-remedy" style="font-size: {StylingConfig.remedy_font_size}; line-height: {StylingConfig.remedy_line_height}; padding: {StylingConfig.remedy_padding};">{ai_advice}</p>
         </div>
         ''', unsafe_allow_html=True)
 
@@ -277,17 +338,23 @@ class ResultProcessor:
     
     @staticmethod
     def process_prediction(disease: str, confidence: int, remedy: str, ai_advice: str) -> Dict:
-        """Process raw prediction into formatted result"""
+        """Process raw prediction into formatted result dictionary"""
+        # Convert confidence to percentage (if it's between 0-1)
         confidence_pct = round(confidence * 100) if confidence <= 1 else confidence
         
+        # Format disease name for display (remove underscores, proper capitalization)
         formatted_disease = TextFormatter.format_disease_name(disease)
         
+        # Check if the plant is healthy
         is_healthy = any(
             keyword.lower() in formatted_disease.lower() or keyword.lower() in disease.lower()
             for keyword in Thresholds.healthy_keywords
         )
         
+        # Calculate severity level
         severity = SeverityCalculator.calculate(confidence_pct, is_healthy)
+        
+        # Extract plant name from disease string
         plant = TextFormatter.extract_plant_name(disease)
         
         return {
@@ -313,10 +380,12 @@ class Validators:
     
     @staticmethod
     def validate_file_size(file_bytes: bytes) -> bool:
+        """Check if file size is within limits"""
         size_mb = len(file_bytes) / (1024 * 1024)
         return size_mb <= AppConfig.max_file_size_mb
     
     @staticmethod
     def validate_file_extension(filename: str) -> bool:
+        """Check if file extension is allowed"""
         ext = filename.split(".")[-1].lower()
         return ext in AppConfig.allowed_formats

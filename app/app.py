@@ -173,26 +173,31 @@ with col_right:
     res = st.session_state.result
     
     if res:
-        # Card 1: Detected Disease
-        UIComponents.render_disease_card(
-            disease=res["disease"],
-            plant=res["plant"],
-            severity=res["severity"],
-            is_healthy=res["healthy"],
-            accent_color=res["accent_color"]
-        )
+        # Create two sub-columns for side-by-side layout
+        col_disease, col_analysis = st.columns([0.5, 0.5], gap="small")
         
-        # Card 2: Combined Confidence + Insight Card
-        UIComponents.render_confidence_insight_card(
-            confidence=res["confidence"],
-            insight=res["insight"],
-            accent_color=res["accent_color"]
-        )
+        # Card 1: Detected Disease (Left sub-column)
+        with col_disease:
+            UIComponents.render_disease_card(
+                disease=res["disease"],
+                plant=res["plant"],
+                severity=res["severity"],
+                is_healthy=res["healthy"],
+                accent_color=res["accent_color"]
+            )
         
-        # Card 3: Suggested Solution
+        # Card 2: Combined Confidence + Insight Card (Right sub-column)
+        with col_analysis:
+            UIComponents.render_confidence_insight_card(
+                confidence=res["confidence"],
+                insight=res["insight"],
+                accent_color=res["accent_color"]
+            )
+        
+        # Card 3: Suggested Solution (Full width)
         UIComponents.render_solution_card(remedy=res["remedy"])
         
-        # Card 4: AI Advisory
+        # Card 4: AI Advisory (Full width)
         UIComponents.render_ai_card(ai_advice=res["ai_advice"])
     
     else:
@@ -200,12 +205,20 @@ with col_right:
         empty_msgs = MessageTemplates.get_empty_state_messages()
         titles = MessageTemplates.get_card_titles()
         
-        UIComponents.render_empty_card(
-            titles["disease"], "🔬", empty_msgs["disease"]
-        )
-        UIComponents.render_empty_card(
-            "Analysis Details", "📊", "Confidence score and insights will appear here..."
-        )
+        # Create two sub-columns for empty state as well
+        col_disease, col_analysis = st.columns([0.5, 0.5], gap="small")
+        
+        with col_disease:
+            UIComponents.render_empty_card(
+                titles["disease"], "🔬", empty_msgs["disease"]
+            )
+        
+        with col_analysis:
+            UIComponents.render_empty_card(
+                "Analysis Details", "📊", "Confidence score and insights will appear here..."
+            )
+        
+        # Full width cards
         UIComponents.render_empty_card(
             titles["solution"], "🌱", empty_msgs["solution"]
         )
