@@ -30,14 +30,6 @@ html, body, .stApp, [data-testid="stAppViewContainer"] {
     color-scheme: dark !important;
 }
 
-/* Rest of your existing CSS continues here... */
-:root {
-    --lime: #a4f000;
-    --teal: #2ef2e2;
-    /* ... rest of your variables ... */
-}
-
-
 :root {
     --lime: #a4f000;
     --teal: #2ef2e2;
@@ -58,14 +50,12 @@ html, body, .stApp, [data-testid="stAppViewContainer"] {
 /* ============================================
    IMPROVED TEXT READABILITY
    ============================================ */
-/* Make body text larger and clearer */
 body, .stMarkdown, p, div {
     font-size: 1rem !important;
     line-height: 1.6 !important;
     letter-spacing: 0.3px !important;
 }
 
-/* Make disease name more visible */
 .ag-disease, .ag-disease-ok {
     font-size: 1.6rem !important;
     font-weight: 800 !important;
@@ -73,7 +63,6 @@ body, .stMarkdown, p, div {
     text-shadow: 0 0 12px rgba(164,240,0,0.4) !important;
 }
 
-/* Improve insight text */
 .ag-insight {
     font-size: 0.95rem !important;
     line-height: 1.8 !important;
@@ -81,7 +70,6 @@ body, .stMarkdown, p, div {
     font-weight: 400 !important;
 }
 
-/* Improve remedy text */
 .ag-remedy {
     font-size: 0.95rem !important;
     line-height: 1.8 !important;
@@ -89,14 +77,12 @@ body, .stMarkdown, p, div {
     background: rgba(46,242,226,0.06) !important;
 }
 
-/* Make labels clearer */
 .ag-label {
     font-size: 0.7rem !important;
     letter-spacing: 5px !important;
     font-weight: 600 !important;
 }
 
-/* Card headers */
 .ag-card-hdr {
     font-size: 0.65rem !important;
     letter-spacing: 4px !important;
@@ -104,14 +90,12 @@ body, .stMarkdown, p, div {
     color: #a4f000 !important;
 }
 
-/* Confidence percentage */
 .ag-conf-pct {
     font-size: 1.6rem !important;
     font-weight: 800 !important;
     letter-spacing: 1px !important;
 }
 
-/* Plant name */
 .ag-plant {
     font-size: 0.8rem !important;
     letter-spacing: 3px !important;
@@ -119,21 +103,18 @@ body, .stMarkdown, p, div {
     color: #7ec8e0 !important;
 }
 
-/* Empty state text */
 .ag-empty {
     font-size: 0.9rem !important;
     font-style: normal !important;
     color: #7a9a8a !important;
 }
 
-/* Badge text */
 .ag-badge {
     font-size: 0.65rem !important;
     letter-spacing: 2.5px !important;
     font-weight: 600 !important;
 }
 
-/* GLOW EFFECTS FOR BETTER VISIBILITY */
 .ag-disease {
     text-shadow: 0 0 15px rgba(164,240,0,0.5),
                  0 0 5px rgba(164,240,0,0.3) !important;
@@ -144,18 +125,16 @@ body, .stMarkdown, p, div {
     text-shadow: 0 0 15px rgba(94,250,94,0.5) !important;
 }
 
-/* Subtle glow for insight text */
 .ag-insight {
     text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
 }
 
-/* Make confidence percentage pop */
 .ag-conf-pct {
     text-shadow: 0 0 8px rgba(164,240,0,0.3) !important;
     font-weight: 800 !important;
 }
 
-/* COMPLETE RESET - Remove ALL default spacing */
+/* COMPLETE RESET */
 * {
     margin: 0;
     padding: 0;
@@ -176,11 +155,11 @@ html, body {
 [data-testid="stAppViewContainer"] {
     margin-top: -44px !important;
     padding-top: 44px !important;
-    height: 100vh !important;
+    min-height: 100vh !important;
 }
 
 [data-testid="stAppViewContainer"] > section {
-    height: 100% !important;
+    min-height: 100vh !important;
     display: flex !important;
     flex-direction: column !important;
 }
@@ -201,7 +180,7 @@ html, body {
     display: none !important;
 }
 
-/* Force columns to be side by side with gap */
+/* Force columns to be side by side */
 [data-testid="stHorizontalBlock"] {
     display: flex !important;
     flex-direction: row !important;
@@ -220,7 +199,7 @@ html, body {
     min-height: 0 !important;
 }
 
-/* Left column - 42% width */
+/* Left column */
 [data-testid="column"]:first-child {
     flex: 0 0 calc(42% - 2px) !important;
     max-width: calc(42% - 2px) !important;
@@ -230,7 +209,7 @@ html, body {
     border-radius: 0 8px 8px 0 !important;
 }
 
-/* Right column - 58% width */
+/* Right column */
 [data-testid="column"]:last-child {
     flex: 0 0 calc(58% - 2px) !important;
     max-width: calc(58% - 2px) !important;
@@ -244,7 +223,7 @@ html, body {
     flex: 1 !important;
     padding: 24px 20px !important;
     min-height: 0 !important;
-    overflow-y: auto !important;
+    overflow-y: visible !important;
 }
 
 /* Left column content */
@@ -252,13 +231,15 @@ html, body {
     gap: 16px !important;
 }
 
-/* Right column content */
+/* Right column content - NO INTERNAL SCROLLBAR */
 [data-testid="column"]:last-child [data-testid="stVerticalBlock"] {
     gap: 8px !important;
-    padding: 24px 20px !important;
+    padding: 24px 20px 24px 20px !important;
+    min-height: 0 !important;
+    overflow-y: visible !important;
 }
 
-/* Header - Flush with top */
+/* Header */
 .ag-header {
     position: relative;
     z-index: 10;
@@ -321,7 +302,7 @@ html, body {
     margin-top: 7px !important;
 }
 
-/* Section label - Base styles (sizing/margins controlled by template.py) */
+/* Section label */
 .ag-label {
     font-family: var(--fM);
     color: var(--lime);
@@ -332,7 +313,6 @@ html, body {
     position: relative;
 }
 
-/* Keep the decorative dot */
 .ag-label::before {
     content: '';
     display: inline-block;
@@ -606,9 +586,9 @@ html, body {
     pointer-events: none;
     z-index: 0;
     animation: orb-drift 24s ease-in-out infinite;
-    will-change: transform;           /* 👈 Optimize animation */
-    backface-visibility: hidden;      /* 👈 Prevent flickering */
-    transform: translateZ(0);         /* 👈 Force GPU acceleration */
+    will-change: transform;
+    backface-visibility: hidden;
+    transform: translateZ(0);
 }
 
 .ag-orb-1 {
@@ -637,20 +617,24 @@ html, body {
     66% { transform: translate(-16px, 20px) scale(0.98); }
 }
 
-/* Footer - Stays at bottom */
+/* ============================================
+   FOOTER - FULL WIDTH, STAYS AT BOTTOM
+   ============================================ */
 .ag-footer {
-    background: rgba(10, 24, 32, 0.8);
+    background: rgba(10, 24, 32, 0.95);
     backdrop-filter: blur(8px);
     border-top: 1px solid var(--border);
-    padding: 10px 40px;
+    padding: 12px 40px;
     text-align: center;
     font-family: var(--fM);
     font-size: 0.57rem;
     color: var(--dim);
     position: relative;
-    z-index: 10;
-    flex-shrink: 0;
-    margin-top: 0 !important;
+    z-index: 100;
+    margin-top: 20px;
+    margin-bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .ag-footer .hl { color: var(--teal); }

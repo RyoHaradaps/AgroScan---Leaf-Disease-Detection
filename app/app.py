@@ -30,6 +30,16 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+# Hide Streamlit footer completely
+hide_streamlit_style = """
+    <style>
+    footer {visibility: hidden;}
+    footer:after {content: ''; visibility: hidden;}
+    .stApp > footer {display: none;}
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 # ==============================================
 # FORCE PERMANENT DARK MODE - ULTRA STRONG VERSION
 # ==============================================
@@ -84,6 +94,29 @@ st.markdown("""
 # STYLE INJECTION
 # ==============================================
 inject_styles()
+
+# Force remove Streamlit footer with JavaScript
+st.markdown("""
+<script>
+    // Wait for page to load
+    setTimeout(function() {
+        var footers = document.querySelectorAll('footer');
+        footers.forEach(function(footer) {
+            footer.style.display = 'none';
+            footer.style.visibility = 'hidden';
+            footer.style.height = '0';
+        });
+        
+        // Also remove any element that might be creating space
+        var mainElements = document.querySelectorAll('.stApp > div');
+        mainElements.forEach(function(el) {
+            if (el.children.length === 0) {
+                el.style.display = 'none';
+            }
+        });
+    }, 100);
+</script>
+""", unsafe_allow_html=True)
 
 # ==============================================
 # SESSION STATE INITIALIZATION
@@ -236,7 +269,7 @@ with col_right:
         )
 
 # ==============================================
-# FOOTER
+# FOOTER - MOVED OUTSIDE THE COLUMNS (FULL WIDTH)
 # ==============================================
 st.markdown(f"""
 <div class="ag-footer">
