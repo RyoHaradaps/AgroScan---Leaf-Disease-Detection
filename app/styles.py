@@ -321,19 +321,18 @@ html, body {
     margin-top: 7px !important;
 }
 
-/* Section label */
+/* Section label - Base styles (sizing/margins controlled by template.py) */
 .ag-label {
     font-family: var(--fM);
-    font-size: 0.59rem;
-    letter-spacing: 4px;
     color: var(--lime);
     text-transform: uppercase;
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 14px;
+    position: relative;
 }
 
+/* Keep the decorative dot */
 .ag-label::before {
     content: '';
     display: inline-block;

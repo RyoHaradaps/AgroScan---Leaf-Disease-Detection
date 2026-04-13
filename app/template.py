@@ -33,6 +33,13 @@ class AppConfig:
 class StylingConfig:
     """Centralized styling configuration - Change all card styles here"""
     
+    # ===== SECTION LABEL STYLES (Image Analysis heading) =====
+    section_label_font_size: str = "0.7rem"
+    section_label_letter_spacing: str = "4px"
+    section_label_margin_bottom: str = "20px"
+    section_label_margin_top: str = "20px"
+    section_label_alignment: str = "left"  # left, center, right
+    
     # ===== CARD HEADER STYLES (Controls ALL card titles: Detected Disease, Analysis Details, etc.) =====
     card_header_font_size: str = "1.5rem"      # Card title font size (0.6rem - 1rem)
     card_header_letter_spacing: str = "4px"     # Card title letter spacing
