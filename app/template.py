@@ -33,10 +33,18 @@ class AppConfig:
 class StylingConfig:
     """Centralized styling configuration - Change all card styles here"""
     
+    # ===== CARD HEADER STYLES (Controls ALL card titles: Detected Disease, Analysis Details, etc.) =====
+    card_header_font_size: str = "1.5rem"      # Card title font size (0.6rem - 1rem)
+    card_header_letter_spacing: str = "4px"     # Card title letter spacing
+    card_header_font_family: str = "Montserrat"   # Font family for headers
+    card_header_font_weight: str = "900"        # Card title boldness (400-900)
+    card_header_text_transform: str = "uppercase"  # uppercase/lowercase/capitalize
+    card_icon_size: str = "1.1rem"              # Card icon size (🔬, 📊, 🌱, 🤖)
+    
     # ===== DISEASE CARD STYLES =====
     disease_font_size: str = "1.6rem"           # Disease name font size
     disease_font_weight: str = "800"            # Disease name boldness
-    disease_margin_bottom: str = "14px"          # Space below disease name
+    disease_margin_bottom: str = "14px"         # Space below disease name
     
     plant_font_size: str = "0.85rem"            # Plant name font size
     plant_letter_spacing: str = "2px"           # Plant name letter spacing
@@ -47,10 +55,6 @@ class StylingConfig:
     badge_padding: str = "4px 14px"             # Badge padding (top/bottom left/right)
     
     # ===== ANALYSIS CARD STYLES =====
-    card_header_font_size: str = "0.7rem"       # Card title font size
-    card_header_letter_spacing: str = "4px"     # Card title letter spacing
-    card_icon_size: str = "1.1rem"              # Card icon size
-    
     confidence_label_size: str = "0.9rem"       # "Model Certainty" text size
     confidence_label_spacing: str = "2px"       # Label letter spacing
     confidence_percent_size: str = "1.8rem"     # Percentage number size
@@ -60,7 +64,7 @@ class StylingConfig:
     progress_bar_margin_bottom: str = "28px"    # Space below progress bar
     
     insight_font_size: str = "0.9rem"           # Insight text size
-    insight_line_height: str = "0.5"            # Insight line height
+    insight_line_height: str = "1.7"            # Insight line height (1.5-2.0)
     
     # ===== CARD SPACING =====
     card_content_margin_bottom: str = "20px"    # Bottom margin for card content
@@ -215,11 +219,22 @@ class UIComponents:
     """Reusable UI component builder with centralized styling"""
     
     @staticmethod
+    def get_header_style() -> str:
+        """Generate consistent header style string"""
+        return (
+            f"font-size: {StylingConfig.card_header_font_size}; "
+            f"letter-spacing: {StylingConfig.card_header_letter_spacing}; "
+            f"font-family: {StylingConfig.card_header_font_family}; "
+            f"font-weight: {StylingConfig.card_header_font_weight}; "
+            f"text-transform: {StylingConfig.card_header_text_transform};"
+        )
+    
+    @staticmethod
     def render_result_card(title: str, icon: str, content_html: str, accent_color: str):
         """Render a result card with HTML content (base method)"""
         card_html = f'''
         <div class="ag-card" style="--card-accent:{accent_color};">
-            <div class="ag-card-hdr" style="font-size: {StylingConfig.card_header_font_size}; letter-spacing: {StylingConfig.card_header_letter_spacing};">
+            <div class="ag-card-hdr" style="{UIComponents.get_header_style()}">
                 <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">{icon}</span>
                 {title}
             </div>
@@ -242,10 +257,12 @@ class UIComponents:
     @staticmethod
     def render_disease_card(disease: str, plant: str, severity: str, is_healthy: bool, accent_color: str):
         """Render disease card with centralized styling from StylingConfig"""
+        header_style = UIComponents.get_header_style()
+        
         if is_healthy:
             st.markdown(f'''
             <div class="ag-card" style="--card-accent:{accent_color};">
-                <div class="ag-card-hdr" style="font-size: {StylingConfig.card_header_font_size}; letter-spacing: {StylingConfig.card_header_letter_spacing};">
+                <div class="ag-card-hdr" style="{header_style}">
                     <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">🔬</span>
                     Detected Disease
                 </div>
@@ -261,7 +278,7 @@ class UIComponents:
         else:
             st.markdown(f'''
             <div class="ag-card" style="--card-accent:{accent_color};">
-                <div class="ag-card-hdr" style="font-size: {StylingConfig.card_header_font_size}; letter-spacing: {StylingConfig.card_header_letter_spacing};">
+                <div class="ag-card-hdr" style="{header_style}">
                     <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">🔬</span>
                     Detected Disease
                 </div>
@@ -280,14 +297,15 @@ class UIComponents:
         """Render combined confidence + insight card with centralized styling"""
         from styles import bar_gradient
         grad = bar_gradient(confidence)
+        header_style = UIComponents.get_header_style()
         
         html = f'''
         <div class="ag-card" style="--card-accent:{accent_color};">
-            <div class="ag-card-hdr" style="font-size: {StylingConfig.card_header_font_size}; letter-spacing: {StylingConfig.card_header_letter_spacing};">
+            <div class="ag-card-hdr" style="{header_style}">
                 <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">📊</span>
                 Analysis Details
             </div>
-            <div class="ag-conf-row" style="margin-bottom: {StylingConfig.confidence_label_size == '0.9rem' and '20px' or StylingConfig.progress_bar_margin_bottom};">
+            <div class="ag-conf-row" style="margin-bottom: 20px;">
                 <span class="ag-conf-lbl" style="font-size: {StylingConfig.confidence_label_size}; letter-spacing: {StylingConfig.confidence_label_spacing};">Model Certainty</span>
                 <span class="ag-conf-pct" style="font-size: {StylingConfig.confidence_percent_size}; font-weight: {StylingConfig.confidence_percent_weight};">{confidence}%</span>
             </div>
@@ -305,9 +323,11 @@ class UIComponents:
     @staticmethod
     def render_solution_card(remedy: str):
         """Render solution card with centralized styling"""
+        header_style = UIComponents.get_header_style()
+        
         st.markdown(f'''
         <div class="ag-card" style="--card-accent:#2ef2e2;">
-            <div class="ag-card-hdr" style="font-size: {StylingConfig.card_header_font_size}; letter-spacing: {StylingConfig.card_header_letter_spacing};">
+            <div class="ag-card-hdr" style="{header_style}">
                 <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">🌱</span>
                 Suggested Solution
             </div>
@@ -318,9 +338,11 @@ class UIComponents:
     @staticmethod
     def render_ai_card(ai_advice: str):
         """Render AI advisory card with centralized styling"""
+        header_style = UIComponents.get_header_style()
+        
         st.markdown(f'''
         <div class="ag-card" style="--card-accent:#A4F000;">
-            <div class="ag-card-hdr" style="font-size: {StylingConfig.card_header_font_size}; letter-spacing: {StylingConfig.card_header_letter_spacing};">
+            <div class="ag-card-hdr" style="{header_style}">
                 <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">🤖</span>
                 AI Advisory
             </div>
