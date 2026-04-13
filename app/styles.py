@@ -606,6 +606,9 @@ html, body {
     pointer-events: none;
     z-index: 0;
     animation: orb-drift 24s ease-in-out infinite;
+    will-change: transform;           /* 👈 Optimize animation */
+    backface-visibility: hidden;      /* 👈 Prevent flickering */
+    transform: translateZ(0);         /* 👈 Force GPU acceleration */
 }
 
 .ag-orb-1 {
@@ -630,8 +633,8 @@ html, body {
 
 @keyframes orb-drift {
     0%, 100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(26px, -26px) scale(1.09); }
-    66% { transform: translate(-16px, 20px) scale(0.93); }
+    33% { transform: translate(26px, -26px) scale(1.02); }
+    66% { transform: translate(-16px, 20px) scale(0.98); }
 }
 
 /* Footer - Stays at bottom */
