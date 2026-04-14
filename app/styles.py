@@ -257,13 +257,14 @@ html, body {
     inset: 0;
     pointer-events: none;
     background: linear-gradient(90deg, transparent, rgba(164,240,0,0.06), transparent);
-    animation: hdr-sweep 4s ease-in-out infinite;
+    will-change: transform;  
+    transform: translateZ(0);
 }
 
 @keyframes hdr-sweep {
-    0% { transform: translateX(-120%); opacity: 0; }
+    0% { transform: translateX(-100%); opacity: 0; }
     40% { opacity: 1; }
-    100% { transform: translateX(120%); opacity: 0; }
+    100% { transform: translateX(100%); opacity: 0; }
 }
 
 .ag-logo-row {
@@ -276,12 +277,21 @@ html, body {
 .ag-logo-leaf {
     font-size: 2.3rem;
     filter: drop-shadow(0 0 10px rgba(164,240,0,0.7));
-    animation: leaf-pulse 3s ease-in-out infinite;
 }
 
 @keyframes leaf-pulse {
     0%, 100% { filter: drop-shadow(0 0 10px rgba(164,240,0,0.7)); }
     50% { filter: drop-shadow(0 0 22px rgba(164,240,0,1.0)); }
+}
+
+/* Prevent scrollbar movement from animations */
+body {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+.stApp {
+    overflow-x: hidden !important;
 }
 
 .ag-title {
@@ -580,45 +590,6 @@ html, body {
     border-radius: 8px;
 }
 
-/* Animated orbs */
-.ag-orb {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(90px);
-    pointer-events: none;
-    z-index: 0;
-    animation: orb-drift 24s ease-in-out infinite;
-    will-change: transform;
-    backface-visibility: hidden;
-    transform: translateZ(0);
-}
-
-.ag-orb-1 {
-    width: 460px; height: 460px;
-    background: radial-gradient(circle, rgba(164,240,0,0.16) 0%, transparent 65%);
-    top: -150px; right: -110px;
-}
-
-.ag-orb-2 {
-    width: 550px; height: 550px;
-    background: radial-gradient(circle, rgba(0,90,80,0.18) 0%, transparent 65%);
-    bottom: -170px; left: -150px;
-    animation-delay: -9s;
-}
-
-.ag-orb-3 {
-    width: 300px; height: 300px;
-    background: radial-gradient(circle, rgba(46,242,226,0.09) 0%, transparent 65%);
-    top: 42%; left: 46%;
-    animation-delay: -16s;
-}
-
-@keyframes orb-drift {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(26px, -26px) scale(1.02); }
-    66% { transform: translate(-16px, 20px) scale(0.98); }
-}
-
 /* ============================================
    FOOTER - FULL WIDTH, STAYS AT BOTTOM
    ============================================ */
@@ -700,18 +671,11 @@ body {
 }
 """
 
-ORBS_HTML = """
-<div class="ag-orb ag-orb-1"></div>
-<div class="ag-orb ag-orb-2"></div>
-<div class="ag-orb ag-orb-3"></div>
-"""
-
 def inject_styles():
     font_link = f'<link href="{_FONT_URL}" rel="stylesheet">'
     style_tag = f"<style>{CSS_CONTENT}</style>"
     st.markdown(font_link, unsafe_allow_html=True)
     st.markdown(style_tag, unsafe_allow_html=True)
-    st.markdown(ORBS_HTML, unsafe_allow_html=True)
 
 def bar_gradient(pct: int) -> str:
     if pct >= 80:
