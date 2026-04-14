@@ -224,24 +224,61 @@ with col_left:
         </div>
         """, unsafe_allow_html=True)
     
-    # Weather Location Section
-    st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="ag-label" style="font-size: 0.7rem;">Location for Weather</div>', unsafe_allow_html=True)
+    # ==============================================
+    # WEATHER LOCATION SECTION - HEADER ON TOP, VALUES BELOW (NO CAPTION)
+    # ==============================================
+    st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
     
-    col_loc1, col_loc2 = st.columns([3, 1])
-    with col_loc1:
-        location_input = st.text_input(
-            "City or Pincode", 
-            placeholder="e.g., Mumbai, 400001", 
-            label_visibility="collapsed", 
-            key="location_input"
-        )
-    with col_loc2:
-        get_weather_btn = st.button("🌤️ Get Weather", key="get_weather_btn", use_container_width=True)
+    # Row 1: Headers
+    col1_header, col2_header, col3_header, col4_header = st.columns([1.2, 0.8, 0.8, 0.4])
     
-    # Fetch weather when requested
-    if get_weather_btn and location_input:
-        with st.spinner("Fetching weather data..."):
+    with col1_header:
+        st.markdown('<span style="color: #7ec8e0; font-size: 0.85rem; letter-spacing: 1px;">📍 PINCODE</span>', unsafe_allow_html=True)
+    
+    with col2_header:
+        st.markdown('<span style="color: #7ec8e0; font-size: 0.85rem; letter-spacing: 1px;">🌡️ TEMPERATURE</span>', unsafe_allow_html=True)
+    
+    with col3_header:
+        st.markdown('<span style="color: #7ec8e0; font-size: 0.85rem; letter-spacing: 1px;">💧 HUMIDITY</span>', unsafe_allow_html=True)
+    
+    with col4_header:
+        st.markdown('', unsafe_allow_html=True)  # Empty for search button alignment
+    
+    # Row 2: Values
+    col1_val, col2_val, col3_val, col4_val = st.columns([1.2, 0.8, 0.8, 0.4])
+    
+    with col1_val:
+        if st.session_state.weather_data:
+            location_name = st.session_state.weather_data.get('location', 'Location')
+            st.markdown(f'<span style="color: #e8f4f0; font-weight: 500; font-size: 1.2rem; padding-left: 20px; margin-top: 10px; display: inline-block;">{location_name}</span>', unsafe_allow_html=True)
+        else:
+            location_input = st.text_input("", placeholder="Enter pincode", label_visibility="collapsed", key="loc_input")
+    
+    with col2_val:
+        if st.session_state.weather_data:
+            st.markdown(f'<span style="color: #a4f000; font-size: 1.1rem; font-weight: 600; padding-left: 40px; margin-top: 10px; display: inline-block;">{st.session_state.weather_data["temp"]}°C</span>', unsafe_allow_html=True)
+        else:
+            st.markdown('<span style="color: #4a8a7a; font-size: 0.9rem; padding-left: 40px; margin-top: 10px; display: inline-block;">--°C</span>', unsafe_allow_html=True)
+    
+    with col3_val:
+        if st.session_state.weather_data:
+            st.markdown(f'<span style="color: #2ef2e2; font-size: 1.1rem; font-weight: 600; padding-left: 40px; margin-top: 10px; display: inline-block;">{st.session_state.weather_data["humidity"]}%</span>', unsafe_allow_html=True)
+        else:
+            st.markdown('<span style="color: #4a8a7a; font-size: 0.9rem; padding-left: 40px; margin-top: 10px; display: inline-block;">--%</span>', unsafe_allow_html=True)
+    
+    with col4_val:
+        if st.session_state.weather_data:
+            st.markdown('<div style="margin-top: -25px;"></div>', unsafe_allow_html=True)
+            if st.button("🔄", key="refresh_btn", use_container_width=True):
+                st.session_state.weather_data = None
+                st.rerun()
+        else:
+            st.markdown('<div style="margin-top: -25px;"></div>', unsafe_allow_html=True)
+            search_clicked = st.button("🔍", key="search_btn", use_container_width=True)
+    
+    # Fetch weather logic
+    if 'search_clicked' in locals() and search_clicked and location_input:
+        with st.spinner("Fetching weather..."):
             if location_input.isdigit():
                 weather = WeatherService.get_weather_by_pincode(location_input)
             else:
@@ -249,12 +286,7 @@ with col_left:
             st.session_state.weather_data = weather
             st.rerun()
     
-    # Show weather status
-    if st.session_state.weather_data:
-        location_name = st.session_state.weather_data.get('location', 'Location')
-        if location_name == "Unknown (using demo data)":
-            location_name = location_input if location_input else "Demo Location"
-        st.success(f"📍 {location_name} | {st.session_state.weather_data['temp']}°C, {st.session_state.weather_data['humidity']}% humidity")
+    st.markdown('<div style="height: 40px;"></div>', unsafe_allow_html=True)
     
     # Run Analysis Button
     run_analysis = st.button(

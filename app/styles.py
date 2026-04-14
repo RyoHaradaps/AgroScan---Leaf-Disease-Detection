@@ -669,6 +669,27 @@ body {
     background-color: #060d10 !important;
     min-height: 100vh;
 }
+
+/* Make the location input box smaller */
+div[data-testid="stTextInput"] input {
+    width: 100px !important;
+    min-width: 80px !important;
+    padding: 5px 8px !important;
+    font-size: 0.8rem !important;
+}
+
+/* Adjust button sizes */
+div[data-testid="stButton"] button {
+    padding: 10px 8px !important;
+    min-width: 50px !important;
+}
+
+/* ... your existing CSS ... */
+
+/* Move the button up to align with input box */
+div[data-testid="stButton"] button {
+    margin-top: -20px !important;
+}
 """
 
 def inject_styles():
