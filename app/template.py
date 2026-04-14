@@ -557,7 +557,7 @@ class UIComponents:
 
 @dataclass(frozen=True)
 class CropWeatherRequirements:
-    """Ideal weather conditions for different crops"""
+    """Ideal weather conditions for different crops based on model classes"""
     
     REQUIREMENTS = {
         "Potato": {
@@ -576,44 +576,48 @@ class CropWeatherRequirements:
             "temp_min": 20, "temp_max": 27, "temp_optimal": 24,
             "humidity_min": 40, "humidity_max": 70,
             "rainfall_weekly_mm": (25, 50),
-            "disease_high_risk": ["Early_Blight", "Leaf_Mold", "Bacterial_Spot"],
+            "disease_high_risk": ["Late_Blight", "Early_Blight", "Bacterial_Spot"],
             "alert_messages": {
                 "high_temp": "🔥 Heat stress - Provide shade net if possible",
                 "high_humidity": "🍅 High humidity risk - Increase spacing, stake plants",
-                "low_rainfall": "💦 Low moisture - Drip irrigation recommended"
+                "low_rainfall": "💦 Low moisture - Drip irrigation recommended",
+                "low_humidity": "🍂 Low humidity - Monitor for spider mites"
             }
         },
         "Rice": {
             "temp_min": 20, "temp_max": 35, "temp_optimal": 28,
             "humidity_min": 70, "humidity_max": 85,
             "rainfall_weekly_mm": (100, 200),
-            "disease_high_risk": ["Blast", "Sheath_Blight", "Brown_Spot"],
+            "disease_high_risk": ["Diseased", "Blast", "Sheath_Blight"],
             "alert_messages": {
                 "high_temp": "☀️ High temperature - Maintain standing water",
                 "low_humidity": "🌾 Low humidity stress - Increase irrigation frequency",
-                "low_rainfall": "⚠️ Water stress - Ensure field flooding"
+                "low_rainfall": "⚠️ Water stress - Ensure field flooding",
+                "high_humidity": "💧 High humidity - Watch for fungal diseases"
             }
         },
-        "Wheat": {
-            "temp_min": 12, "temp_max": 25, "temp_optimal": 18,
-            "humidity_min": 40, "humidity_max": 60,
-            "rainfall_weekly_mm": (15, 25),
-            "disease_high_risk": ["Rust", "Powdery_Mildew"],
+        "Cotton": {
+            "temp_min": 20, "temp_max": 35, "temp_optimal": 28,
+            "humidity_min": 50, "humidity_max": 70,
+            "rainfall_weekly_mm": (20, 30),
+            "disease_high_risk": ["Curl_virus", "Bacterial_blight", "Fusarium_wilt"],
             "alert_messages": {
-                "high_temp": "🌾 Heat stress - Early morning irrigation",
-                "high_humidity": "🍄 Humidity risk - Watch for rust development",
-                "low_rainfall": "💧 Low moisture - Light irrigation needed"
+                "high_temp": "🌿 Heat stress - Ensure adequate irrigation",
+                "high_humidity": "🦠 High humidity - Watch for bacterial blight",
+                "low_rainfall": "💧 Water stress - Schedule regular irrigation",
+                "low_humidity": "🍂 Low humidity - Monitor for whiteflies (curl virus vector)"
             }
         },
-        "Maize": {
+        "Pepper": {
             "temp_min": 18, "temp_max": 30, "temp_optimal": 24,
-            "humidity_min": 50, "humidity_max": 75,
-            "rainfall_weekly_mm": (25, 50),
-            "disease_high_risk": ["Rust", "Leaf_Blight"],
+            "humidity_min": 50, "humidity_max": 70,
+            "rainfall_weekly_mm": (25, 40),
+            "disease_high_risk": ["Bacterial_spot"],
             "alert_messages": {
-                "high_temp": "🌽 Heat stress - Provide wind breaks",
-                "high_humidity": "⚠️ High humidity - Monitor for leaf diseases",
-                "low_rainfall": "💦 Low moisture - Drip irrigation recommended"
+                "high_temp": "🌶️ Heat stress - Provide afternoon shade",
+                "high_humidity": "🦠 High humidity - Watch for bacterial spot",
+                "low_rainfall": "💧 Low moisture - Maintain consistent soil moisture",
+                "low_humidity": "🍂 Low humidity - Monitor for thrips and aphids"
             }
         }
     }
@@ -621,17 +625,26 @@ class CropWeatherRequirements:
     @staticmethod
     def get_requirements(crop_name: str) -> dict:
         """Get weather requirements for a crop"""
+        # Exact match first
         if crop_name in CropWeatherRequirements.REQUIREMENTS:
             return CropWeatherRequirements.REQUIREMENTS[crop_name]
         
+        # Case-insensitive match
+        for crop in CropWeatherRequirements.REQUIREMENTS:
+            if crop.lower() == crop_name.lower():
+                return CropWeatherRequirements.REQUIREMENTS[crop]
+        
+        # Partial match (for cases like "Potato_Early_blight" -> "Potato")
         for crop in CropWeatherRequirements.REQUIREMENTS:
             if crop.lower() in crop_name.lower() or crop_name.lower() in crop.lower():
                 return CropWeatherRequirements.REQUIREMENTS[crop]
         
+        # Default to Potato if crop not found
         return CropWeatherRequirements.REQUIREMENTS.get("Potato")
     
     @staticmethod
     def get_supported_crops() -> list:
+        """Return list of supported crops"""
         return list(CropWeatherRequirements.REQUIREMENTS.keys())
 
 
@@ -674,6 +687,10 @@ class WeatherComparison:
             recommendations.append(req["alert_messages"]["high_humidity"])
         elif humidity_status == "low":
             recommendations.append(req["alert_messages"].get("low_humidity", "💧 Low humidity - Increase moisture around plants"))
+        
+        # Add rainfall warning if applicable
+        if actual_humidity < req["humidity_min"] and temp_status == "high":
+            recommendations.append(req["alert_messages"].get("low_rainfall", "💧 Monitor soil moisture"))
         
         # Calculate overall suitability score
         temp_score = 100 - (temp_deviation * 5) if temp_deviation > 0 else 100
