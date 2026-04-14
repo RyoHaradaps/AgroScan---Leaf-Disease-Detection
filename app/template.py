@@ -15,7 +15,7 @@ import streamlit as st
 @dataclass(frozen=True)
 class AppConfig:
     """Central app configuration - Change app-wide settings here"""
-    name: str = "AgroScan AI"
+    name: str = "AgroScan"
     version: str = "v1.0"
     tagline: str = "Smart Leaf Disease Detection System"
     icon: str = "🌿"
@@ -34,10 +34,10 @@ class StylingConfig:
     """Centralized styling configuration - Change all card styles here"""
     
     # ===== SECTION LABEL STYLES (Image Analysis heading) =====
-    section_label_font_size: str = "0.7rem"
+    section_label_font_size: str = "0.9rem"
     section_label_letter_spacing: str = "4px"
     section_label_margin_bottom: str = "30px"
-    section_label_margin_top: str = "20px"
+    section_label_margin_top: str = "15px"
     section_label_alignment: str = "left"  # left, center, right
     
     # ===== CARD HEADER STYLES (Controls ALL card titles: Detected Disease, Analysis Details, etc.) =====
