@@ -12,12 +12,15 @@ from io import BytesIO
 from predict import predict_image
 from remedies import get_remedy
 from ai_advisor import get_ai_advice
+import os
+from weather_service import WeatherService
 
 # Import custom styling functions and helpers
 from styles import inject_styles
 from template import (
     AppConfig, ResultProcessor, StylingConfig, UIComponents, 
-    MessageTemplates, Validators, SeverityCalculator
+    MessageTemplates, Validators, SeverityCalculator, 
+    CropWeatherRequirements, WeatherComparison
 )
 
 # ==============================================
@@ -30,7 +33,19 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# Hide Streamlit footer completely
+# ==============================================
+# SESSION STATE INITIALIZATION
+# ==============================================
+if "result" not in st.session_state:
+    st.session_state.result = None
+if "weather_data" not in st.session_state:
+    st.session_state.weather_data = None
+if "selected_location" not in st.session_state:
+    st.session_state.selected_location = "auto"
+    
+# ==============================================
+# HIDE STREAMLIT UI ELEMENTS
+# ==============================================
 hide_streamlit_style = """
     <style>
     footer {visibility: hidden;}
@@ -41,7 +56,7 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # ==============================================
-# FORCE PERMANENT DARK MODE - ULTRA STRONG VERSION
+# FORCE PERMANENT DARK MODE
 # ==============================================
 st.markdown("""
 <head>
@@ -51,7 +66,6 @@ st.markdown("""
     <meta name="theme-color" content="#060d10">
 </head>
 <style>
-    /* ULTRA AGGRESSIVE DARK MODE FORCE */
     :root, html, body, .stApp, [data-testid="stAppViewContainer"] {
         color-scheme: dark !important;
         forced-color-adjust: none !important;
@@ -59,14 +73,12 @@ st.markdown("""
         background: #060d10 !important;
     }
     
-    /* Force ALL elements to stay dark */
     *, *::before, *::after {
         color-scheme: dark !important;
         forced-color-adjust: none !important;
         -webkit-forced-color-adjust: none !important;
     }
     
-    /* Prevent any light mode injection */
     @media (prefers-color-scheme: light) {
         :root, html, body {
             color-scheme: dark !important;
@@ -75,12 +87,10 @@ st.markdown("""
     }
 </style>
 <script>
-    // Force dark mode via JavaScript (most reliable)
     document.documentElement.style.colorScheme = 'dark';
     document.documentElement.style.backgroundColor = '#060d10';
     document.body.style.backgroundColor = '#060d10';
     
-    // Monitor for any changes and reapply
     const observer = new MutationObserver(function() {
         document.documentElement.style.colorScheme = 'dark';
         document.documentElement.style.backgroundColor = '#060d10';
@@ -95,10 +105,9 @@ st.markdown("""
 # ==============================================
 inject_styles()
 
-# Force remove Streamlit footer with JavaScript
+# Force remove Streamlit footer
 st.markdown("""
 <script>
-    // Wait for page to load
     setTimeout(function() {
         var footers = document.querySelectorAll('footer');
         footers.forEach(function(footer) {
@@ -106,23 +115,51 @@ st.markdown("""
             footer.style.visibility = 'hidden';
             footer.style.height = '0';
         });
-        
-        // Also remove any element that might be creating space
-        var mainElements = document.querySelectorAll('.stApp > div');
-        mainElements.forEach(function(el) {
-            if (el.children.length === 0) {
-                el.style.display = 'none';
-            }
-        });
     }, 100);
 </script>
 """, unsafe_allow_html=True)
 
 # ==============================================
-# SESSION STATE INITIALIZATION
+# DEBUG: DISCOVER MODEL CLASSES (Optional - can remove later)
 # ==============================================
-if "result" not in st.session_state:
-    st.session_state.result = None
+def discover_model_classes():
+    """Discover what crops/diseases your model can detect"""
+    try:
+        import predict
+        if hasattr(predict, 'model'):
+            if hasattr(predict.model, 'class_to_idx'):
+                classes = list(predict.model.class_to_idx.keys())
+                return classes
+                
+        if os.path.exists('classes.txt'):
+            with open('classes.txt', 'r') as f:
+                classes = [line.strip() for line in f.readlines()]
+            return classes
+    except Exception as e:
+        print(f"Could not discover classes: {e}")
+    return None
+
+# Optional debug info in sidebar
+with st.sidebar:
+    st.write("### Debug Info")
+    model_classes = discover_model_classes()
+    if model_classes:
+        st.write(f"Model detects {len(model_classes)} classes")
+        with st.expander("View all classes"):
+            st.write(model_classes)
+        
+        unique_crops = set()
+        for cls in model_classes:
+            if '_' in cls:
+                crop = cls.split('_')[0]
+            elif ' ' in cls:
+                crop = cls.split(' ')[0]
+            else:
+                crop = cls
+            unique_crops.add(crop)
+        
+        st.write(f"### Unique Crops: {len(unique_crops)}")
+        st.write(sorted(list(unique_crops)))
 
 # ==============================================
 # HEADER SECTION
@@ -137,7 +174,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# Add spacer here
 st.markdown('<div style="height: 40px;"></div>', unsafe_allow_html=True)
 
 # ==============================================
@@ -149,9 +185,10 @@ col_left, col_right = st.columns(
 )
 
 # ==============================================
-# LEFT COLUMN - IMAGE UPLOAD SECTION
+# LEFT COLUMN - IMAGE UPLOAD & WEATHER SECTION
 # ==============================================
 with col_left:
+    # Image Analysis Section
     st.markdown(f'''
     <div class="ag-label" style="
         font-size: {StylingConfig.section_label_font_size};
@@ -166,7 +203,8 @@ with col_left:
     uploaded = st.file_uploader(
         "Upload",
         type=AppConfig.allowed_formats,
-        label_visibility="collapsed"
+        label_visibility="collapsed",
+        key="image_uploader"
     )
     
     if uploaded:
@@ -186,13 +224,51 @@ with col_left:
         </div>
         """, unsafe_allow_html=True)
     
-    run = st.button("⬡ Run Analysis", disabled=(uploaded is None), use_container_width=True)
+    # Weather Location Section
+    st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="ag-label" style="font-size: 0.7rem;">Location for Weather</div>', unsafe_allow_html=True)
+    
+    col_loc1, col_loc2 = st.columns([3, 1])
+    with col_loc1:
+        location_input = st.text_input(
+            "City or Pincode", 
+            placeholder="e.g., Mumbai, 400001", 
+            label_visibility="collapsed", 
+            key="location_input"
+        )
+    with col_loc2:
+        get_weather_btn = st.button("🌤️ Get Weather", key="get_weather_btn", use_container_width=True)
+    
+    # Fetch weather when requested
+    if get_weather_btn and location_input:
+        with st.spinner("Fetching weather data..."):
+            if location_input.isdigit():
+                weather = WeatherService.get_weather_by_pincode(location_input)
+            else:
+                weather = WeatherService.get_weather_by_city(location_input)
+            st.session_state.weather_data = weather
+            st.rerun()
+    
+    # Show weather status
+    if st.session_state.weather_data:
+        location_name = st.session_state.weather_data.get('location', 'Location')
+        if location_name == "Unknown (using demo data)":
+            location_name = location_input if location_input else "Demo Location"
+        st.success(f"📍 {location_name} | {st.session_state.weather_data['temp']}°C, {st.session_state.weather_data['humidity']}% humidity")
+    
+    # Run Analysis Button
+    run_analysis = st.button(
+        "⬡ Run Analysis", 
+        disabled=(uploaded is None), 
+        use_container_width=True,
+        key="run_analysis_btn"
+    )
 
-    if run and uploaded:
+    if run_analysis and uploaded:
         st.session_state.result = None
 
         with st.spinner("Running model inference..."):
-            time.sleep(1.5)
+            time.sleep(0.5)
 
             # Real model prediction
             disease, confidence = predict_image(img)
@@ -201,10 +277,30 @@ with col_left:
             remedy = get_remedy(disease)
             ai_advice = get_ai_advice(disease, confidence)
 
-            # Process using template (centralized logic)
+            # Process using template
             st.session_state.result = ResultProcessor.process_prediction(
                 disease, confidence, remedy, ai_advice
             )
+            st.rerun()
+    
+    # ==============================================
+    # WEATHER CARD - Display after Run Analysis button
+    # ==============================================
+    # Add spacing
+    st.markdown('<div style="height: 25px;"></div>', unsafe_allow_html=True)
+    
+    # Display weather comparison card if conditions are met
+    if st.session_state.weather_data and st.session_state.result:
+        comparison = WeatherComparison.compare(
+            actual_temp=st.session_state.weather_data['temp'],
+            actual_humidity=st.session_state.weather_data['humidity'],
+            crop_name=st.session_state.result["plant"]
+        )
+        UIComponents.render_weather_comparison_card(comparison)
+    elif st.session_state.weather_data and not st.session_state.result:
+        st.info("🌱 Upload an image and click 'Run Analysis' to see crop-specific weather advice")
+    elif not st.session_state.weather_data:
+        st.info("📍 Enter a location above and click 'Get Weather' to see crop suitability analysis")
 
 # ==============================================
 # RIGHT COLUMN - RESULTS DISPLAY
@@ -213,6 +309,7 @@ with col_right:
     res = st.session_state.result
     
     if res:
+        
         # Create two sub-columns for side-by-side layout
         col_disease, col_analysis = st.columns([0.5, 0.5], gap="small")
         
@@ -245,7 +342,7 @@ with col_right:
         empty_msgs = MessageTemplates.get_empty_state_messages()
         titles = MessageTemplates.get_card_titles()
         
-        # Create two sub-columns for empty state as well
+        # Create two sub-columns for empty state
         col_disease, col_analysis = st.columns([0.5, 0.5], gap="small")
         
         with col_disease:
@@ -267,7 +364,7 @@ with col_right:
         )
 
 # ==============================================
-# FOOTER - MOVED OUTSIDE THE COLUMNS (FULL WIDTH)
+# FOOTER
 # ==============================================
 st.markdown(f"""
 <div class="ag-footer">

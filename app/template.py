@@ -1,8 +1,5 @@
 # template.py — Centralized Configuration & Reusable Components
 # ==============================================================
-# This file contains all configuration, business logic, and UI components
-# for the AgroScan AI application. All styling is centrally controlled
-# through the StylingConfig class for easy maintenance.
 
 from dataclasses import dataclass
 from typing import Dict, Tuple, Optional
@@ -38,76 +35,76 @@ class StylingConfig:
     section_label_letter_spacing: str = "4px"
     section_label_margin_bottom: str = "30px"
     section_label_margin_top: str = "15px"
-    section_label_alignment: str = "left"  # left, center, right
+    section_label_alignment: str = "left"
     
-    # ===== CARD HEADER STYLES (Controls ALL card titles: Detected Disease, Analysis Details, etc.) =====
-    card_header_font_size: str = "1.5rem"      # Card title font size (0.6rem - 1rem)
-    card_header_letter_spacing: str = "4px"     # Card title letter spacing
-    card_header_font_family: str = "Montserrat"   # Font family for headers
-    card_header_font_weight: str = "900"        # Card title boldness (400-900)
-    card_header_text_transform: str = "uppercase"  # uppercase/lowercase/capitalize
-    card_icon_size: str = "1.1rem"              # Card icon size (🔬, 📊, 🌱, 🤖)
+    # ===== CARD HEADER STYLES =====
+    card_header_font_size: str = "0.65rem"
+    card_header_letter_spacing: str = "4px"
+    card_header_font_family: str = "Montserrat"
+    card_header_font_weight: str = "900"
+    card_header_text_transform: str = "uppercase"
+    card_icon_size: str = "1.1rem"
     
     # ===== DISEASE CARD STYLES =====
-    disease_font_size: str = "1.6rem"           # Disease name font size
-    disease_font_weight: str = "800"            # Disease name boldness
-    disease_margin_bottom: str = "14px"         # Space below disease name
+    disease_font_size: str = "1.6rem"
+    disease_font_weight: str = "800"
+    disease_margin_bottom: str = "14px"
     
-    plant_font_size: str = "0.85rem"            # Plant name font size
-    plant_letter_spacing: str = "2px"           # Plant name letter spacing
-    plant_margin_bottom: str = "20px"           # Space below plant name
-    plant_color: str = "#7ec8e0"                # Plant name color
+    plant_font_size: str = "0.85rem"
+    plant_letter_spacing: str = "2px"
+    plant_margin_bottom: str = "20px"
+    plant_color: str = "#7ec8e0"
     
-    badge_font_size: str = "0.7rem"             # Severity badge font size
-    badge_padding: str = "4px 14px"             # Badge padding (top/bottom left/right)
+    badge_font_size: str = "0.7rem"
+    badge_padding: str = "4px 14px"
     
     # ===== ANALYSIS CARD STYLES =====
-    confidence_label_size: str = "0.9rem"       # "Model Certainty" text size
-    confidence_label_spacing: str = "2px"       # Label letter spacing
-    confidence_percent_size: str = "1.8rem"     # Percentage number size
-    confidence_percent_weight: str = "800"      # Percentage boldness
+    confidence_label_size: str = "0.9rem"
+    confidence_label_spacing: str = "2px"
+    confidence_percent_size: str = "1.8rem"
+    confidence_percent_weight: str = "800"
     
-    progress_bar_height: str = "8px"            # Height of confidence bar
-    progress_bar_margin_bottom: str = "28px"    # Space below progress bar
+    progress_bar_height: str = "8px"
+    progress_bar_margin_bottom: str = "28px"
     
-    insight_font_size: str = "0.9rem"           # Insight text size
-    insight_line_height: str = "1.7"            # Insight line height (1.5-2.0)
+    insight_font_size: str = "0.9rem"
+    insight_line_height: str = "1.7"
     
     # ===== CARD SPACING =====
-    card_content_margin_bottom: str = "20px"    # Bottom margin for card content
-    divider_margin_top: str = "8px"             # Space above divider line
-    divider_padding_top: str = "18px"           # Space above insight text
-    divider_border_width: str = "1px"           # Divider line thickness
+    card_content_margin_bottom: str = "20px"
+    divider_margin_top: str = "8px"
+    divider_padding_top: str = "18px"
+    divider_border_width: str = "1px"
     
     # ===== SOLUTION & AI CARDS =====
-    remedy_font_size: str = "0.95rem"           # Remedy/AI text size
-    remedy_line_height: str = "1.8"             # Remedy/AI line height
-    remedy_padding: str = "10px 14px"           # Remedy text padding
+    remedy_font_size: str = "0.95rem"
+    remedy_line_height: str = "1.8"
+    remedy_padding: str = "10px 14px"
 
 
 @dataclass(frozen=True)
 class Thresholds:
     """Confidence and severity thresholds"""
-    high_confidence: int = 85      # Above this = low severity
-    medium_confidence: int = 60    # 60-85% = medium severity
-    low_confidence: int = 0        # Below 60% = high severity
+    high_confidence: int = 85
+    medium_confidence: int = 60
+    low_confidence: int = 0
     healthy_keywords: Tuple[str, ...] = ("Healthy", "health", "good condition")
 
 
 @dataclass(frozen=True)
 class UIColors:
-    """Centralized color scheme - Change all colors here"""
-    lime: str = "#a4f000"          # Primary accent color
-    teal: str = "#2ef2e2"          # Secondary accent color
-    warn: str = "#ffb347"          # Warning color (medium severity)
-    danger: str = "#ff5c6a"        # Danger color (high severity)
-    ok: str = "#5efa5e"            # Success color (healthy)
-    bg_root: str = "#060d10"       # Background color
-    border: str = "#14303f"        # Border color
-    border_hi: str = "#1d4a5c"     # Highlight border
-    mid: str = "#4a8a7a"           # Mid-tone text
-    dim: str = "#1e4a3a"           # Dim text
-    white: str = "#e8f4f0"         # White text
+    """Centralized color scheme"""
+    lime: str = "#a4f000"
+    teal: str = "#2ef2e2"
+    warn: str = "#ffb347"
+    danger: str = "#ff5c6a"
+    ok: str = "#5efa5e"
+    bg_root: str = "#060d10"
+    border: str = "#14303f"
+    border_hi: str = "#1d4a5c"
+    mid: str = "#4a8a7a"
+    dim: str = "#1e4a3a"
+    white: str = "#e8f4f0"
 
 
 # ==============================================
@@ -133,7 +130,7 @@ class TextFormatter:
     
     @staticmethod
     def extract_plant_name(disease: str) -> str:
-        """Extract plant name from disease string (e.g., 'Potato' from 'Potato_Late_blight')"""
+        """Extract plant name from disease string"""
         if "_" in disease:
             plant = disease.split("_")[0]
         else:
@@ -152,7 +149,6 @@ class SeverityCalculator:
     
     @staticmethod
     def calculate(confidence: int, is_healthy: bool) -> str:
-        """Calculate severity based on confidence and health status"""
         if is_healthy:
             return "none"
         
@@ -165,7 +161,6 @@ class SeverityCalculator:
     
     @staticmethod
     def get_accent_color(severity: str, is_healthy: bool) -> str:
-        """Get accent color based on severity level"""
         if is_healthy:
             return UIColors.ok
         
@@ -178,7 +173,6 @@ class SeverityCalculator:
     
     @staticmethod
     def get_badge_class(severity: str) -> str:
-        """Get CSS badge class for severity level"""
         badge_map = {
             "none": "b-none",
             "low": "b-low",
@@ -189,16 +183,14 @@ class SeverityCalculator:
 
 
 class MessageTemplates:
-    """Centralized message templates for all text content"""
+    """Centralized message templates"""
     
     @staticmethod
     def get_insight(disease: str, confidence: int) -> str:
-        """Generate system insight message"""
         return f"Model predicts {disease} with {confidence}% confidence."
     
     @staticmethod
     def get_empty_state_messages() -> Dict[str, str]:
-        """Empty state placeholder messages"""
         return {
             "disease": "Upload an image to begin analysis...",
             "confidence": "Awaiting prediction results...",
@@ -208,7 +200,6 @@ class MessageTemplates:
     
     @staticmethod
     def get_card_titles() -> Dict[str, str]:
-        """Card title templates"""
         return {
             "disease": "Detected Disease",
             "confidence": "Confidence Score",
@@ -227,7 +218,6 @@ class UIComponents:
     
     @staticmethod
     def get_header_style() -> str:
-        """Generate consistent header style string"""
         return (
             f"font-size: {StylingConfig.card_header_font_size}; "
             f"letter-spacing: {StylingConfig.card_header_letter_spacing}; "
@@ -238,7 +228,6 @@ class UIComponents:
     
     @staticmethod
     def render_result_card(title: str, icon: str, content_html: str, accent_color: str):
-        """Render a result card with HTML content (base method)"""
         card_html = f'''
         <div class="ag-card" style="--card-accent:{accent_color};">
             <div class="ag-card-hdr" style="{UIComponents.get_header_style()}">
@@ -252,7 +241,6 @@ class UIComponents:
     
     @staticmethod
     def render_empty_card(title: str, icon: str, placeholder: str):
-        """Render an empty state card"""
         empty_html = f'<p class="ag-empty">{placeholder}</p>'
         UIComponents.render_result_card(
             title=title,
@@ -263,7 +251,6 @@ class UIComponents:
     
     @staticmethod
     def render_disease_card(disease: str, plant: str, severity: str, is_healthy: bool, accent_color: str):
-        """Render disease card with centralized styling from StylingConfig"""
         header_style = UIComponents.get_header_style()
         
         if is_healthy:
@@ -356,6 +343,307 @@ class UIComponents:
             <p class="ag-remedy" style="font-size: {StylingConfig.remedy_font_size}; line-height: {StylingConfig.remedy_line_height}; padding: {StylingConfig.remedy_padding};">{ai_advice}</p>
         </div>
         ''', unsafe_allow_html=True)
+    
+    @staticmethod
+    def render_weather_comparison_card(comparison_data: dict):
+        """Render weather comparison card with custom colored arrows for both sections"""
+        
+        # Use padding columns for alignment
+        pad_col, content_col = st.columns([0.2, 10])
+        
+        with content_col:
+            # Card header
+            st.markdown("""
+            <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 5px 0 5px 0; margin-bottom: 15px;">
+                <div style="border-left: 3px solid #2ef2e2; padding: 12px 0 12px 15px;">
+                    <span style="font-size: 1.1rem;">🌤️</span>
+                    <span style="font-size: 0.65rem; letter-spacing: 4px; font-weight: 700; color: #a4f000; margin-left: 8px;">WEATHER & CROP SUITABILITY</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Two columns for requirements vs current
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("**📋 CROP REQUIREMENTS**")
+                
+                # Temperature ideal range display
+                st.markdown(f"""
+                <div style="margin-bottom: 20px;">
+                    <div style="color: #7ec8e0; font-size: 0.8rem;">Temperature Range</div>
+                    <div style="display: flex; align-items: baseline; gap: 10px;">
+                        <span style="font-size: 1.5rem; font-weight: 600; color: #e8f4f0;">{comparison_data['ideal_temp']}</span>
+                        <span style="color: #5efa5e; font-size: 0.9rem;">✓</span>
+                    </div>
+                    <div style="color: #5efa5e; font-size: 0.75rem;">Optimal: {comparison_data['ideal_temp_optimal']}</div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Humidity ideal range display
+                st.markdown(f"""
+                <div>
+                    <div style="color: #7ec8e0; font-size: 0.8rem;">Humidity Range</div>
+                    <div style="display: flex; align-items: baseline; gap: 10px;">
+                        <span style="font-size: 1.5rem; font-weight: 600; color: #e8f4f0;">{comparison_data['ideal_humidity']}</span>
+                        <span style="color: #5efa5e; font-size: 0.9rem;">✓</span>
+                    </div>
+                    <div style="color: #5efa5e; font-size: 0.75rem;">Ideal growing conditions</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col2:
+                st.markdown("**📍 CURRENT CONDITIONS**")
+                
+                # Temperature with custom colored HTML metric
+                if comparison_data['temp_status'] == 'high':
+                    arrow = "▲"
+                    color = "#ffb347"
+                    delta_text = f"{comparison_data['temp_deviation']}°C above ideal"
+                elif comparison_data['temp_status'] == 'low':
+                    arrow = "▼"
+                    color = "#4a8a7a"
+                    delta_text = f"{comparison_data['temp_deviation']}°C below ideal"
+                else:
+                    arrow = "✓"
+                    color = "#5efa5e"
+                    delta_text = "Within ideal range"
+                
+                st.markdown(f"""
+                <div style="margin-bottom: 20px;">
+                    <div style="color: #7ec8e0; font-size: 0.8rem;">Temperature</div>
+                    <div style="display: flex; align-items: baseline; gap: 10px;">
+                        <span style="font-size: 1.5rem; font-weight: 600; color: #e8f4f0;">{comparison_data['actual_temp']}°C</span>
+                        <span style="color: {color}; font-size: 0.9rem;">{arrow}</span>
+                    </div>
+                    <div style="color: {color}; font-size: 0.75rem;">{delta_text}</div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Humidity with custom colored HTML metric
+                if comparison_data['humidity_status'] == 'high':
+                    arrow = "▲"
+                    color = "#ffb347"
+                    delta_text = f"{comparison_data['humidity_deviation']}% above ideal"
+                elif comparison_data['humidity_status'] == 'low':
+                    arrow = "▼"
+                    color = "#4a8a7a"
+                    delta_text = f"{comparison_data['humidity_deviation']}% below ideal"
+                else:
+                    arrow = "✓"
+                    color = "#5efa5e"
+                    delta_text = "Within ideal range"
+                
+                st.markdown(f"""
+                <div>
+                    <div style="color: #7ec8e0; font-size: 0.8rem;">Humidity</div>
+                    <div style="display: flex; align-items: baseline; gap: 10px;">
+                        <span style="font-size: 1.5rem; font-weight: 600; color: #e8f4f0;">{comparison_data['actual_humidity']}%</span>
+                        <span style="color: {color}; font-size: 0.9rem;">{arrow}</span>
+                    </div>
+                    <div style="color: {color}; font-size: 0.75rem;">{delta_text}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            # Overall suitability
+            st.divider()
+            
+            # Suitability color
+            if comparison_data['overall_score'] >= 80:
+                suit_color = "#5efa5e"
+                suit_emoji = "🟢"
+            elif comparison_data['overall_score'] >= 60:
+                suit_color = "#a4f000"
+                suit_emoji = "🟡"
+            elif comparison_data['overall_score'] >= 40:
+                suit_color = "#ffb347"
+                suit_emoji = "🟠"
+            else:
+                suit_color = "#ff5c6a"
+                suit_emoji = "🔴"
+            
+            st.markdown(f"**Overall Suitability:** {suit_emoji} <span style='color: {suit_color}; font-weight: bold;'>{comparison_data['suitability']} ({comparison_data['overall_score']}%)</span>", unsafe_allow_html=True)
+            st.progress(comparison_data['overall_score'] / 100)
+            
+            # Recommendations
+            st.divider()
+            st.markdown("**💡 MANAGEMENT RECOMMENDATIONS**")
+            
+            if comparison_data["recommendations"]:
+                for rec in comparison_data["recommendations"]:
+                    st.warning(rec)
+            else:
+                st.success("✓ Weather conditions are ideal for this crop")
+            
+            # Disease risk
+            st.divider()
+            if comparison_data.get("disease_risk"):
+                st.markdown("**⚠️ DISEASE RISK ALERT**")
+                st.error(f"High-risk diseases: {', '.join(comparison_data['disease_risk'][:3])}")
+            else:
+                st.info("📊 Monitor field regularly for early signs of disease")
+
+# ==============================================
+# CROP WEATHER REQUIREMENTS
+# ==============================================
+
+@dataclass(frozen=True)
+class CropWeatherRequirements:
+    """Ideal weather conditions for different crops"""
+    
+    REQUIREMENTS = {
+        "Potato": {
+            "temp_min": 15, "temp_max": 20, "temp_optimal": 18,
+            "humidity_min": 60, "humidity_max": 70,
+            "rainfall_weekly_mm": (25, 35),
+            "disease_high_risk": ["Late_Blight", "Early_Blight"],
+            "alert_messages": {
+                "high_temp": "🌡️ High temperature stress - Mulch and irrigate early morning",
+                "high_humidity": "💧 High humidity - Watch for late blight, improve air circulation",
+                "low_rainfall": "🏜️ Low rainfall - Increase irrigation frequency",
+                "low_humidity": "🍂 Low humidity - Monitor for pest infestation"
+            }
+        },
+        "Tomato": {
+            "temp_min": 20, "temp_max": 27, "temp_optimal": 24,
+            "humidity_min": 40, "humidity_max": 70,
+            "rainfall_weekly_mm": (25, 50),
+            "disease_high_risk": ["Early_Blight", "Leaf_Mold", "Bacterial_Spot"],
+            "alert_messages": {
+                "high_temp": "🔥 Heat stress - Provide shade net if possible",
+                "high_humidity": "🍅 High humidity risk - Increase spacing, stake plants",
+                "low_rainfall": "💦 Low moisture - Drip irrigation recommended"
+            }
+        },
+        "Rice": {
+            "temp_min": 20, "temp_max": 35, "temp_optimal": 28,
+            "humidity_min": 70, "humidity_max": 85,
+            "rainfall_weekly_mm": (100, 200),
+            "disease_high_risk": ["Blast", "Sheath_Blight", "Brown_Spot"],
+            "alert_messages": {
+                "high_temp": "☀️ High temperature - Maintain standing water",
+                "low_humidity": "🌾 Low humidity stress - Increase irrigation frequency",
+                "low_rainfall": "⚠️ Water stress - Ensure field flooding"
+            }
+        },
+        "Wheat": {
+            "temp_min": 12, "temp_max": 25, "temp_optimal": 18,
+            "humidity_min": 40, "humidity_max": 60,
+            "rainfall_weekly_mm": (15, 25),
+            "disease_high_risk": ["Rust", "Powdery_Mildew"],
+            "alert_messages": {
+                "high_temp": "🌾 Heat stress - Early morning irrigation",
+                "high_humidity": "🍄 Humidity risk - Watch for rust development",
+                "low_rainfall": "💧 Low moisture - Light irrigation needed"
+            }
+        },
+        "Maize": {
+            "temp_min": 18, "temp_max": 30, "temp_optimal": 24,
+            "humidity_min": 50, "humidity_max": 75,
+            "rainfall_weekly_mm": (25, 50),
+            "disease_high_risk": ["Rust", "Leaf_Blight"],
+            "alert_messages": {
+                "high_temp": "🌽 Heat stress - Provide wind breaks",
+                "high_humidity": "⚠️ High humidity - Monitor for leaf diseases",
+                "low_rainfall": "💦 Low moisture - Drip irrigation recommended"
+            }
+        }
+    }
+    
+    @staticmethod
+    def get_requirements(crop_name: str) -> dict:
+        """Get weather requirements for a crop"""
+        if crop_name in CropWeatherRequirements.REQUIREMENTS:
+            return CropWeatherRequirements.REQUIREMENTS[crop_name]
+        
+        for crop in CropWeatherRequirements.REQUIREMENTS:
+            if crop.lower() in crop_name.lower() or crop_name.lower() in crop.lower():
+                return CropWeatherRequirements.REQUIREMENTS[crop]
+        
+        return CropWeatherRequirements.REQUIREMENTS.get("Potato")
+    
+    @staticmethod
+    def get_supported_crops() -> list:
+        return list(CropWeatherRequirements.REQUIREMENTS.keys())
+
+
+class WeatherComparison:
+    """Compare actual vs ideal weather conditions"""
+    
+    @staticmethod
+    def compare(actual_temp: float, actual_humidity: float, crop_name: str) -> dict:
+        """Compare actual weather with crop requirements"""
+        req = CropWeatherRequirements.get_requirements(crop_name)
+        
+        # Temperature comparison
+        temp_status = "ideal"
+        temp_deviation = 0
+        if actual_temp < req["temp_min"]:
+            temp_status = "low"
+            temp_deviation = round(req["temp_min"] - actual_temp, 1)
+        elif actual_temp > req["temp_max"]:
+            temp_status = "high"
+            temp_deviation = round(actual_temp - req["temp_max"], 1)
+        
+        # Humidity comparison
+        humidity_status = "ideal"
+        humidity_deviation = 0
+        if actual_humidity < req["humidity_min"]:
+            humidity_status = "low"
+            humidity_deviation = round(req["humidity_min"] - actual_humidity, 1)
+        elif actual_humidity > req["humidity_max"]:
+            humidity_status = "high"
+            humidity_deviation = round(actual_humidity - req["humidity_max"], 1)
+        
+        # Generate recommendations
+        recommendations = []
+        if temp_status == "high":
+            recommendations.append(req["alert_messages"]["high_temp"])
+        elif temp_status == "low":
+            recommendations.append(f"❄️ Low temperature stress - Protect plants from cold")
+            
+        if humidity_status == "high":
+            recommendations.append(req["alert_messages"]["high_humidity"])
+        elif humidity_status == "low":
+            recommendations.append(req["alert_messages"].get("low_humidity", "💧 Low humidity - Increase moisture around plants"))
+        
+        # Calculate overall suitability score
+        temp_score = 100 - (temp_deviation * 5) if temp_deviation > 0 else 100
+        humidity_score = 100 - (humidity_deviation * 3) if humidity_deviation > 0 else 100
+        overall_score = round((temp_score + humidity_score) / 2)
+        overall_score = max(0, min(100, overall_score))
+        
+        # Determine suitability level
+        if overall_score >= 80:
+            suitability = "Excellent"
+            suitability_color = "#5efa5e"
+        elif overall_score >= 60:
+            suitability = "Good"
+            suitability_color = "#a4f000"
+        elif overall_score >= 40:
+            suitability = "Moderate"
+            suitability_color = "#ffb347"
+        else:
+            suitability = "Poor"
+            suitability_color = "#ff5c6a"
+        
+        return {
+            "crop": crop_name,
+            "ideal_temp": f"{req['temp_min']}-{req['temp_max']}°C",
+            "ideal_temp_optimal": f"{req['temp_optimal']}°C",
+            "ideal_humidity": f"{req['humidity_min']}-{req['humidity_max']}%",
+            "actual_temp": actual_temp,
+            "actual_humidity": actual_humidity,
+            "temp_status": temp_status,
+            "humidity_status": humidity_status,
+            "temp_deviation": temp_deviation,
+            "humidity_deviation": humidity_deviation,
+            "recommendations": recommendations,
+            "disease_risk": req.get("disease_high_risk", []),
+            "overall_score": overall_score,
+            "suitability": suitability,
+            "suitability_color": suitability_color
+        }
 
 
 # ==============================================
@@ -367,23 +655,15 @@ class ResultProcessor:
     
     @staticmethod
     def process_prediction(disease: str, confidence: int, remedy: str, ai_advice: str) -> Dict:
-        """Process raw prediction into formatted result dictionary"""
-        # Convert confidence to percentage (if it's between 0-1)
         confidence_pct = round(confidence * 100) if confidence <= 1 else confidence
-        
-        # Format disease name for display (remove underscores, proper capitalization)
         formatted_disease = TextFormatter.format_disease_name(disease)
         
-        # Check if the plant is healthy
         is_healthy = any(
             keyword.lower() in formatted_disease.lower() or keyword.lower() in disease.lower()
             for keyword in Thresholds.healthy_keywords
         )
         
-        # Calculate severity level
         severity = SeverityCalculator.calculate(confidence_pct, is_healthy)
-        
-        # Extract plant name from disease string
         plant = TextFormatter.extract_plant_name(disease)
         
         return {
@@ -409,12 +689,10 @@ class Validators:
     
     @staticmethod
     def validate_file_size(file_bytes: bytes) -> bool:
-        """Check if file size is within limits"""
         size_mb = len(file_bytes) / (1024 * 1024)
         return size_mb <= AppConfig.max_file_size_mb
     
     @staticmethod
     def validate_file_extension(filename: str) -> bool:
-        """Check if file extension is allowed"""
         ext = filename.split(".")[-1].lower()
         return ext in AppConfig.allowed_formats
