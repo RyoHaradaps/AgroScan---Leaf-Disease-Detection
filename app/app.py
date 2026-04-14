@@ -227,7 +227,7 @@ with col_left:
     # ==============================================
     # WEATHER LOCATION SECTION - HEADER ON TOP, VALUES BELOW (NO CAPTION)
     # ==============================================
-    st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="height: 25px;"></div>', unsafe_allow_html=True)
     
     # Row 1: Headers
     col1_header, col2_header, col3_header, col4_header = st.columns([1.2, 0.8, 0.8, 0.4])
@@ -249,11 +249,30 @@ with col_left:
     
     with col1_val:
         if st.session_state.weather_data:
-            location_name = st.session_state.weather_data.get('location', 'Location')
-            st.markdown(f'<span style="color: #e8f4f0; font-weight: 500; font-size: 1.2rem; padding-left: 20px; margin-top: 10px; display: inline-block;">{location_name}</span>', unsafe_allow_html=True)
+            # Get location name and pincode
+            location_name = st.session_state.weather_data.get('location', '')
+            pincode = st.session_state.weather_data.get('pincode', '')
+            city = st.session_state.weather_data.get('city', '')
+            
+            # Build display text with both location and pincode
+            if location_name and location_name != "Unknown (using demo data)":
+                if pincode:
+                    display_text = f"{location_name} ({pincode})"
+                elif city:
+                    display_text = f"{location_name} ({city})"
+                else:
+                    display_text = location_name
+            elif pincode:
+                display_text = f"Pincode: {pincode}"
+            elif city:
+                display_text = city
+            else:
+                display_text = "Location found"
+            
+            st.markdown(f'<span style="color: #e8f4f0; font-weight: 500; font-size: 1.2rem; padding-left: 20px; margin-top: 10px; display: inline-block;">{display_text}</span>', unsafe_allow_html=True)
         else:
             location_input = st.text_input("", placeholder="Enter pincode", label_visibility="collapsed", key="loc_input")
-    
+            
     with col2_val:
         if st.session_state.weather_data:
             st.markdown(f'<span style="color: #a4f000; font-size: 1.1rem; font-weight: 600; padding-left: 40px; margin-top: 10px; display: inline-block;">{st.session_state.weather_data["temp"]}°C</span>', unsafe_allow_html=True)
