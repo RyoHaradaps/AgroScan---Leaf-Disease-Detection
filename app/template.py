@@ -331,8 +331,57 @@ class UIComponents:
     
     @staticmethod
     def render_ai_card(ai_advice: str):
-        """Render AI advisory card with centralized styling"""
+        """Render AI advisory card with main points as separate glass cards"""
         header_style = UIComponents.get_header_style()
+        
+        lines = str(ai_advice).split('\n')
+        
+        content_html = ""
+        current_section = ""
+        
+        for line in lines:
+            line = line.rstrip()
+            if not line:
+                continue
+            
+            clean_line = line.strip()
+            
+            # Check if it's a main numbered point (1., 2., 3., etc.)
+            if len(clean_line) > 1 and clean_line[0].isdigit() and clean_line[1] == '.':
+                # If we have a previous section, close it
+                if current_section:
+                    content_html += f'<div class="ag-remedy" style="margin-bottom: 16px; line-height: 1.7;">{current_section}</div>'
+                    current_section = ""
+                
+                # Start new main point
+                parts = clean_line.split('.', 1)
+                if len(parts) == 2:
+                    current_section = f'<strong style="color: #a4f000; font-size: 1rem;">{parts[0]}.</strong>{parts[1]}'
+                else:
+                    current_section = clean_line
+            
+            # Check if it's a sub-point (a., b., c., •, -, *)
+            elif (len(clean_line) > 1 and clean_line[0].isalpha() and clean_line[1] == '.') or \
+                 clean_line.startswith('•') or clean_line.startswith('-') or clean_line.startswith('*'):
+                # Add to current section with line break and indentation
+                if current_section:
+                    current_section += f'<br><span style="display: inline-block; margin-left: 25px; margin-top: 6px; color: #2ef2e2;">{clean_line}</span>'
+                else:
+                    current_section = f'<span style="display: inline-block; margin-left: 25px;">{clean_line}</span>'
+            
+            # Regular text (continuation of previous point)
+            else:
+                if current_section:
+                    current_section += f' {clean_line}'
+                else:
+                    current_section = clean_line
+        
+        # Don't forget the last section
+        if current_section:
+            content_html += f'<div class="ag-remedy" style="margin-bottom: 16px; line-height: 1.7;">{current_section}</div>'
+        
+        if not content_html:
+            content_html = f'<div class="ag-remedy">{ai_advice}</div>'
         
         st.markdown(f'''
         <div class="ag-card" style="--card-accent:#A4F000;">
@@ -340,7 +389,7 @@ class UIComponents:
                 <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">🤖</span>
                 AI Advisory
             </div>
-            <p class="ag-remedy" style="font-size: {StylingConfig.remedy_font_size}; line-height: {StylingConfig.remedy_line_height}; padding: {StylingConfig.remedy_padding};">{ai_advice}</p>
+            {content_html}
         </div>
         ''', unsafe_allow_html=True)
     
