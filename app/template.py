@@ -346,142 +346,161 @@ class UIComponents:
     
     @staticmethod
     def render_weather_comparison_card(comparison_data: dict):
-        """Render weather comparison card with custom colored arrows for both sections"""
+        """Render weather comparison card - no padding version"""
         
-        # Use padding columns for alignment
-        pad_col, content_col = st.columns([0.2, 10])
+        # Determine accent color based on suitability
+        if comparison_data['overall_score'] >= 80:
+            accent_color = "#5efa5e"
+        elif comparison_data['overall_score'] >= 60:
+            accent_color = "#a4f000"
+        elif comparison_data['overall_score'] >= 40:
+            accent_color = "#ffb347"
+        else:
+            accent_color = "#ff5c6a"
         
-        with content_col:
-            # Card header
-            st.markdown("""
-            <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 5px 0 5px 0; margin-bottom: 15px;">
-                <div style="border-left: 3px solid #2ef2e2; padding: 12px 0 12px 15px;">
-                    <span style="font-size: 1.1rem;">🌤️</span>
-                    <span style="font-size: 0.65rem; letter-spacing: 4px; font-weight: 700; color: #a4f000; margin-left: 8px;">WEATHER & CROP SUITABILITY</span>
-                </div>
+        # Determine colors for current conditions display
+        if comparison_data['temp_status'] == 'high':
+            temp_arrow = "▲"
+            temp_color = "#ffb347"
+            temp_delta = f"{comparison_data['temp_deviation']}°C above ideal"
+        elif comparison_data['temp_status'] == 'low':
+            temp_arrow = "▼"
+            temp_color = "#4a8a7a"
+            temp_delta = f"{comparison_data['temp_deviation']}°C below ideal"
+        else:
+            temp_arrow = "✓"
+            temp_color = "#5efa5e"
+            temp_delta = "Within ideal range"
+        
+        if comparison_data['humidity_status'] == 'high':
+            humidity_arrow = "▲"
+            humidity_color = "#ffb347"
+            humidity_delta = f"{comparison_data['humidity_deviation']}% above ideal"
+        elif comparison_data['humidity_status'] == 'low':
+            humidity_arrow = "▼"
+            humidity_color = "#4a8a7a"
+            humidity_delta = f"{comparison_data['humidity_deviation']}% below ideal"
+        else:
+            humidity_arrow = "✓"
+            humidity_color = "#5efa5e"
+            humidity_delta = "Within ideal range"
+        
+        # Suitability emoji and color
+        if comparison_data['overall_score'] >= 80:
+            suit_emoji = "🟢"
+            suit_color = "#5efa5e"
+        elif comparison_data['overall_score'] >= 60:
+            suit_emoji = "🟡"
+            suit_color = "#a4f000"
+        elif comparison_data['overall_score'] >= 40:
+            suit_emoji = "🟠"
+            suit_color = "#ffb347"
+        else:
+            suit_emoji = "🔴"
+            suit_color = "#ff5c6a"
+        
+        # Build recommendations HTML
+        recommendations_html = ""
+        if comparison_data["recommendations"]:
+            for rec in comparison_data["recommendations"]:
+                recommendations_html += f'<div style="background: rgba(255,179,71,0.1); border-left: 3px solid #ffb347; padding: 8px 12px; margin: 8px 0; border-radius: 6px;">{rec}</div>'
+        else:
+            recommendations_html = '<div style="color: #5efa5e;">✓ Weather conditions are ideal for this crop</div>'
+        
+        # Disease risk HTML
+        if comparison_data.get("disease_risk"):
+            disease_risk_html = f'<div style="background: rgba(255,92,106,0.1); border-left: 3px solid #ff5c6a; padding: 8px 12px; border-radius: 6px;">⚠️ High-risk diseases: {", ".join(comparison_data["disease_risk"][:3])}</div>'
+        else:
+            disease_risk_html = '<div style="background: rgba(46,242,226,0.1); border-left: 3px solid #2ef2e2; padding: 8px 12px; border-radius: 6px;">📊 Monitor field regularly for early signs of disease</div>'
+        
+        # NO PADDING COLUMNS - render directly
+        html_string = f'''
+        <div class="ag-card" style="--card-accent:{accent_color}; margin-bottom: 20px; padding-right: 16px;">
+            <div class="ag-card-hdr" style="{UIComponents.get_header_style()}">
+                <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">🌤️</span>
+                Weather & Crop Suitability
             </div>
-            """, unsafe_allow_html=True)
-            
-            # Two columns for requirements vs current
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.markdown("**📋 CROP REQUIREMENTS**")
+            <div style="margin-bottom: {StylingConfig.card_content_margin_bottom};">
                 
-                # Temperature ideal range display
-                st.markdown(f"""
-                <div style="margin-bottom: 20px;">
-                    <div style="color: #7ec8e0; font-size: 0.8rem;">Temperature Range</div>
-                    <div style="display: flex; align-items: baseline; gap: 10px;">
-                        <span style="font-size: 1.5rem; font-weight: 600; color: #e8f4f0;">{comparison_data['ideal_temp']}</span>
-                        <span style="color: #5efa5e; font-size: 0.9rem;">✓</span>
+                <!-- Two columns using CSS grid -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 20px;">
+                    
+                    <!-- LEFT COLUMN: CROP REQUIREMENTS -->
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 15px; color: #e8f4f0;">📋 CROP REQUIREMENTS</div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <div style="color: #7ec8e0; font-size: 0.8rem;">Temperature Range</div>
+                            <div style="display: flex; align-items: baseline; gap: 10px;">
+                                <span style="font-size: 1.5rem; font-weight: 600; color: #e8f4f0;">{comparison_data['ideal_temp']}</span>
+                                <span style="color: #5efa5e; font-size: 0.9rem;">✓</span>
+                            </div>
+                            <div style="color: #5efa5e; font-size: 0.75rem;">Optimal: {comparison_data['ideal_temp_optimal']}</div>
+                        </div>
+                        
+                        <div>
+                            <div style="color: #7ec8e0; font-size: 0.8rem;">Humidity Range</div>
+                            <div style="display: flex; align-items: baseline; gap: 10px;">
+                                <span style="font-size: 1.5rem; font-weight: 600; color: #e8f4f0;">{comparison_data['ideal_humidity']}</span>
+                                <span style="color: #5efa5e; font-size: 0.9rem;">✓</span>
+                            </div>
+                            <div style="color: #5efa5e; font-size: 0.75rem;">Ideal growing conditions</div>
+                        </div>
                     </div>
-                    <div style="color: #5efa5e; font-size: 0.75rem;">Optimal: {comparison_data['ideal_temp_optimal']}</div>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                # Humidity ideal range display
-                st.markdown(f"""
-                <div>
-                    <div style="color: #7ec8e0; font-size: 0.8rem;">Humidity Range</div>
-                    <div style="display: flex; align-items: baseline; gap: 10px;">
-                        <span style="font-size: 1.5rem; font-weight: 600; color: #e8f4f0;">{comparison_data['ideal_humidity']}</span>
-                        <span style="color: #5efa5e; font-size: 0.9rem;">✓</span>
+                    
+                    <!-- RIGHT COLUMN: CURRENT CONDITIONS -->
+                    <div style="border-left: 1px solid rgba(164,240,0,0.2); padding-left: 20px;">
+                        <div style="font-weight: 600; margin-bottom: 15px; color: #e8f4f0;">📍 CURRENT CONDITIONS</div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <div style="color: #7ec8e0; font-size: 0.8rem;">Temperature</div>
+                            <div style="display: flex; align-items: baseline; gap: 10px;">
+                                <span style="font-size: 1.5rem; font-weight: 600; color: #e8f4f0;">{comparison_data['actual_temp']}°C</span>
+                                <span style="color: {temp_color}; font-size: 0.9rem;">{temp_arrow}</span>
+                            </div>
+                            <div style="color: {temp_color}; font-size: 0.75rem;">{temp_delta}</div>
+                        </div>
+                        
+                        <div>
+                            <div style="color: #7ec8e0; font-size: 0.8rem;">Humidity</div>
+                            <div style="display: flex; align-items: baseline; gap: 10px;">
+                                <span style="font-size: 1.5rem; font-weight: 600; color: #e8f4f0;">{comparison_data['actual_humidity']}%</span>
+                                <span style="color: {humidity_color}; font-size: 0.9rem;">{humidity_arrow}</span>
+                            </div>
+                            <div style="color: {humidity_color}; font-size: 0.75rem;">{humidity_delta}</div>
+                        </div>
                     </div>
-                    <div style="color: #5efa5e; font-size: 0.75rem;">Ideal growing conditions</div>
                 </div>
-                """, unsafe_allow_html=True)
-            
-            with col2:
-                st.markdown("**📍 CURRENT CONDITIONS**")
                 
-                # Temperature with custom colored HTML metric
-                if comparison_data['temp_status'] == 'high':
-                    arrow = "▲"
-                    color = "#ffb347"
-                    delta_text = f"{comparison_data['temp_deviation']}°C above ideal"
-                elif comparison_data['temp_status'] == 'low':
-                    arrow = "▼"
-                    color = "#4a8a7a"
-                    delta_text = f"{comparison_data['temp_deviation']}°C below ideal"
-                else:
-                    arrow = "✓"
-                    color = "#5efa5e"
-                    delta_text = "Within ideal range"
-                
-                st.markdown(f"""
-                <div style="margin-bottom: 20px;">
-                    <div style="color: #7ec8e0; font-size: 0.8rem;">Temperature</div>
-                    <div style="display: flex; align-items: baseline; gap: 10px;">
-                        <span style="font-size: 1.5rem; font-weight: 600; color: #e8f4f0;">{comparison_data['actual_temp']}°C</span>
-                        <span style="color: {color}; font-size: 0.9rem;">{arrow}</span>
+                <!-- Overall Suitability -->
+                <div style="margin: 20px 0 15px 0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #7ec8e0;">Overall Suitability</span>
+                        <span style="color: {suit_color}; font-weight: bold;">{suit_emoji} {comparison_data['suitability']} ({comparison_data['overall_score']}%)</span>
                     </div>
-                    <div style="color: {color}; font-size: 0.75rem;">{delta_text}</div>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                # Humidity with custom colored HTML metric
-                if comparison_data['humidity_status'] == 'high':
-                    arrow = "▲"
-                    color = "#ffb347"
-                    delta_text = f"{comparison_data['humidity_deviation']}% above ideal"
-                elif comparison_data['humidity_status'] == 'low':
-                    arrow = "▼"
-                    color = "#4a8a7a"
-                    delta_text = f"{comparison_data['humidity_deviation']}% below ideal"
-                else:
-                    arrow = "✓"
-                    color = "#5efa5e"
-                    delta_text = "Within ideal range"
-                
-                st.markdown(f"""
-                <div>
-                    <div style="color: #7ec8e0; font-size: 0.8rem;">Humidity</div>
-                    <div style="display: flex; align-items: baseline; gap: 10px;">
-                        <span style="font-size: 1.5rem; font-weight: 600; color: #e8f4f0;">{comparison_data['actual_humidity']}%</span>
-                        <span style="color: {color}; font-size: 0.9rem;">{arrow}</span>
+                    <div class="ag-bar-track" style="height: 6px;">
+                        <div class="ag-bar-fill" style="width:{comparison_data['overall_score']}%; background: {suit_color};"></div>
                     </div>
-                    <div style="color: {color}; font-size: 0.75rem;">{delta_text}</div>
                 </div>
-                """, unsafe_allow_html=True)
-            
-            # Overall suitability
-            st.divider()
-            
-            # Suitability color
-            if comparison_data['overall_score'] >= 80:
-                suit_color = "#5efa5e"
-                suit_emoji = "🟢"
-            elif comparison_data['overall_score'] >= 60:
-                suit_color = "#a4f000"
-                suit_emoji = "🟡"
-            elif comparison_data['overall_score'] >= 40:
-                suit_color = "#ffb347"
-                suit_emoji = "🟠"
-            else:
-                suit_color = "#ff5c6a"
-                suit_emoji = "🔴"
-            
-            st.markdown(f"**Overall Suitability:** {suit_emoji} <span style='color: {suit_color}; font-weight: bold;'>{comparison_data['suitability']} ({comparison_data['overall_score']}%)</span>", unsafe_allow_html=True)
-            st.progress(comparison_data['overall_score'] / 100)
-            
-            # Recommendations
-            st.divider()
-            st.markdown("**💡 MANAGEMENT RECOMMENDATIONS**")
-            
-            if comparison_data["recommendations"]:
-                for rec in comparison_data["recommendations"]:
-                    st.warning(rec)
-            else:
-                st.success("✓ Weather conditions are ideal for this crop")
-            
-            # Disease risk
-            st.divider()
-            if comparison_data.get("disease_risk"):
-                st.markdown("**⚠️ DISEASE RISK ALERT**")
-                st.error(f"High-risk diseases: {', '.join(comparison_data['disease_risk'][:3])}")
-            else:
-                st.info("📊 Monitor field regularly for early signs of disease")
+                
+                <div style="border-top: 1px solid rgba(164,240,0,0.2); margin: 15px 0;"></div>
+                
+                <!-- Recommendations -->
+                <div style="font-weight: 600; margin-bottom: 10px; color: #e8f4f0;">💡 MANAGEMENT RECOMMENDATIONS</div>
+                {recommendations_html}
+                
+                <div style="border-top: 1px solid rgba(164,240,0,0.2); margin: 15px 0;"></div>
+                
+                <!-- Disease Risk -->
+                <div style="font-weight: 600; margin-bottom: 10px; color: #e8f4f0;">⚠️ DISEASE RISK ALERT</div>
+                {disease_risk_html}
+                
+            </div>
+        </div>
+        '''
+        
+        # Render directly - NO padding columns
+        st.html(html_string)
 
 # ==============================================
 # CROP WEATHER REQUIREMENTS
