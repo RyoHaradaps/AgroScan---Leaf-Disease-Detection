@@ -1,8 +1,11 @@
 # styles.py — AgroScan AI Custom Styling Module
 # ==============================================
+# Contains all custom CSS styling for the AgroScan application
+# Includes dark mode theming, card styles, animations, and responsive layouts
 
 import streamlit as st
 
+# Google Fonts for AgroScan typography
 _FONT_URL = (
     "https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900"
     "&family=Syne:wght@400;500;600;700"
@@ -30,6 +33,9 @@ html, body, .stApp, [data-testid="stAppViewContainer"] {
     color-scheme: dark !important;
 }
 
+/* ============================================
+   COLOR VARIABLES
+   ============================================ */
 :root {
     --lime: #a4f000;
     --teal: #2ef2e2;
@@ -48,7 +54,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"] {
 }
 
 /* ============================================
-   IMPROVED TEXT READABILITY
+   TEXT READABILITY ENHANCEMENTS
    ============================================ */
 body, .stMarkdown, p, div {
     font-size: 1rem !important;
@@ -115,6 +121,7 @@ body, .stMarkdown, p, div {
     font-weight: 600 !important;
 }
 
+/* Text shadows for better visibility */
 .ag-disease {
     text-shadow: 0 0 15px rgba(164,240,0,0.5),
                  0 0 5px rgba(164,240,0,0.3) !important;
@@ -134,7 +141,9 @@ body, .stMarkdown, p, div {
     font-weight: 800 !important;
 }
 
-/* COMPLETE RESET */
+/* ============================================
+   GLOBAL RESET & LAYOUT
+   ============================================ */
 * {
     margin: 0;
     padding: 0;
@@ -174,13 +183,17 @@ html, body {
     flex-direction: column !important;
 }
 
-/* Hide Streamlit UI elements */
+/* ============================================
+   HIDE STREAMLIT UI ELEMENTS
+   ============================================ */
 [data-testid="stHeader"], [data-testid="stToolbar"], 
 [data-testid="stDecoration"], [data-testid="stStatusWidget"], footer {
     display: none !important;
 }
 
-/* Force columns to be side by side */
+/* ============================================
+   COLUMN LAYOUT STYLES
+   ============================================ */
 [data-testid="stHorizontalBlock"] {
     display: flex !important;
     flex-direction: row !important;
@@ -199,7 +212,7 @@ html, body {
     min-height: 0 !important;
 }
 
-/* Left column */
+/* Left column styling */
 [data-testid="column"]:first-child {
     flex: 0 0 calc(42% - 2px) !important;
     max-width: calc(42% - 2px) !important;
@@ -209,7 +222,7 @@ html, body {
     border-radius: 0 8px 8px 0 !important;
 }
 
-/* Right column */
+/* Right column styling */
 [data-testid="column"]:last-child {
     flex: 0 0 calc(58% - 2px) !important;
     max-width: calc(58% - 2px) !important;
@@ -226,12 +239,12 @@ html, body {
     overflow-y: visible !important;
 }
 
-/* Left column content */
+/* Left column content spacing */
 [data-testid="column"]:first-child [data-testid="stVerticalBlock"] {
     gap: 16px !important;
 }
 
-/* Right column content - NO INTERNAL SCROLLBAR */
+/* Right column content spacing */
 [data-testid="column"]:last-child [data-testid="stVerticalBlock"] {
     gap: 8px !important;
     padding: 24px 20px 24px 20px !important;
@@ -239,7 +252,9 @@ html, body {
     overflow-y: visible !important;
 }
 
-/* Header */
+/* ============================================
+   HEADER STYLES
+   ============================================ */
 .ag-header {
     position: relative;
     z-index: 10;
@@ -261,12 +276,6 @@ html, body {
     transform: translateZ(0);
 }
 
-@keyframes hdr-sweep {
-    0% { transform: translateX(-100%); opacity: 0; }
-    40% { opacity: 1; }
-    100% { transform: translateX(100%); opacity: 0; }
-}
-
 .ag-logo-row {
     display: flex;
     align-items: center;
@@ -277,21 +286,12 @@ html, body {
 .ag-logo-leaf {
     font-size: 2.3rem;
     filter: drop-shadow(0 0 10px rgba(164,240,0,0.7));
+    animation: leaf-pulse 2s ease-in-out infinite;
 }
 
 @keyframes leaf-pulse {
     0%, 100% { filter: drop-shadow(0 0 10px rgba(164,240,0,0.7)); }
     50% { filter: drop-shadow(0 0 22px rgba(164,240,0,1.0)); }
-}
-
-/* Prevent scrollbar movement from animations */
-body {
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-}
-
-.stApp {
-    overflow-x: hidden !important;
 }
 
 .ag-title {
@@ -312,7 +312,7 @@ body {
     margin-top: 7px !important;
 }
 
-/* Section label */
+/* Section label with dot indicator */
 .ag-label {
     font-family: var(--fM);
     color: var(--lime);
@@ -333,7 +333,9 @@ body {
     box-shadow: 0 0 6px var(--lime);
 }
 
-/* File uploader */
+/* ============================================
+   FILE UPLOADER STYLES
+   ============================================ */
 [data-testid="stFileUploader"] > label {
     display: none !important;
 }
@@ -375,7 +377,9 @@ body {
     padding: 6px 18px !important;
 }
 
-/* Image preview */
+/* ============================================
+   IMAGE PREVIEW STYLES
+   ============================================ */
 .ag-img-frame {
     border: 1px solid var(--border-hi);
     border-radius: 14px;
@@ -426,7 +430,9 @@ body {
     color: var(--mid);
 }
 
-/* Analyze button */
+/* ============================================
+   BUTTON STYLES
+   ============================================ */
 .stButton > button {
     width: 100% !important;
     background: linear-gradient(135deg, #173d20 0%, #0c2714 100%) !important;
@@ -450,7 +456,9 @@ body {
     box-shadow: 0 0 34px rgba(164,240,0,0.34) !important;
 }
 
-/* Result cards */
+/* ============================================
+   CARD STYLES
+   ============================================ */
 .ag-card {
     background: rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(4px);
@@ -467,6 +475,7 @@ body {
     border-bottom-color: rgba(164, 240, 0, 0.3);
 }
 
+/* Left accent line for cards */
 .ag-card::before {
     content: '';
     position: absolute;
@@ -495,6 +504,7 @@ body {
     font-size: 0.95rem;
 }
 
+/* Empty state text */
 .ag-empty {
     font-family: var(--fB);
     font-size: 0.80rem;
@@ -502,6 +512,7 @@ body {
     font-style: italic;
 }
 
+/* Disease name styles */
 .ag-disease {
     font-family: var(--fD);
     font-size: 1.28rem;
@@ -528,6 +539,7 @@ body {
     margin-bottom: 8px;
 }
 
+/* Severity badge styles */
 .ag-badge {
     display: inline-block;
     padding: 2px 12px;
@@ -544,6 +556,7 @@ body {
 .b-medium { color: var(--warn); border-color: var(--warn); background: rgba(255,179,71,0.08); }
 .b-high { color: var(--danger); border-color: var(--danger); background: rgba(255,92,106,0.08); }
 
+/* Confidence score styles */
 .ag-conf-row {
     display: flex;
     justify-content: space-between;
@@ -564,6 +577,7 @@ body {
     color: var(--lime);
 }
 
+/* Progress bar styles */
 .ag-bar-track {
     height: 7px;
     background: rgba(20, 48, 63, 0.5);
@@ -576,6 +590,7 @@ body {
     border-radius: 99px;
 }
 
+/* Insight and remedy text */
 .ag-insight, .ag-remedy {
     font-family: var(--fB);
     font-size: 0.83rem;
@@ -591,7 +606,7 @@ body {
 }
 
 /* ============================================
-   FOOTER - FULL WIDTH, STAYS AT BOTTOM
+   FOOTER STYLES
    ============================================ */
 .ag-footer {
     background: rgba(10, 24, 32, 0.95);
@@ -612,13 +627,18 @@ body {
 
 .ag-footer .hl { color: var(--teal); }
 
-/* Scrollbar */
+/* ============================================
+   SCROLLBAR STYLES
+   ============================================ */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg-root); }
 ::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--lime); }
 
-/* Remove extra space at bottom */
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+/* Remove extra spacing */
 html, body, .stApp {
     background-color: #060d10 !important;
     margin: 0 !important;
@@ -630,7 +650,6 @@ body::after, .stApp::after {
     content: none !important;
 }
 
-/* Ensure no extra spacing after footer */
 .block-container {
     padding-bottom: 0 !important;
     margin-bottom: 0 !important;
@@ -640,7 +659,6 @@ body::after, .stApp::after {
     gap: 0 !important;
 }
 
-/* Make footer stick to absolute bottom with no extra space */
 .ag-footer {
     margin-bottom: 0 !important;
     margin-top: 20px !important;
@@ -650,7 +668,6 @@ body::after, .stApp::after {
     right: 0;
 }
 
-/* Remove any default Streamlit bottom padding */
 .main > div {
     padding-bottom: 0 !important;
 }
@@ -659,7 +676,6 @@ body::after, .stApp::after {
     padding-bottom: 0 !important;
 }
 
-/* Force dark background all the way */
 body {
     background-color: #060d10 !important;
     min-height: 100vh;
@@ -670,7 +686,10 @@ body {
     min-height: 100vh;
 }
 
-/* Make the location input box smaller */
+/* ============================================
+   WEATHER WIDGET SPECIFIC STYLES
+   ============================================ */
+/* Smaller location input box */
 div[data-testid="stTextInput"] input {
     width: 100px !important;
     min-width: 80px !important;
@@ -678,27 +697,26 @@ div[data-testid="stTextInput"] input {
     font-size: 0.8rem !important;
 }
 
-/* Adjust button sizes */
+/* Button adjustments for weather widget */
 div[data-testid="stButton"] button {
     padding: 10px 8px !important;
     min-width: 50px !important;
-}
-
-/* ... your existing CSS ... */
-
-/* Move the button up to align with input box */
-div[data-testid="stButton"] button {
     margin-top: -20px !important;
 }
 """
 
 def inject_styles():
+    """Inject all custom styles into the Streamlit app"""
     font_link = f'<link href="{_FONT_URL}" rel="stylesheet">'
     style_tag = f"<style>{CSS_CONTENT}</style>"
     st.markdown(font_link, unsafe_allow_html=True)
     st.markdown(style_tag, unsafe_allow_html=True)
 
 def bar_gradient(pct: int) -> str:
+    """
+    Return gradient color based on confidence percentage
+    Green for high confidence (80%+), Yellow for medium (55-79%), Red for low (<55%)
+    """
     if pct >= 80:
         return "linear-gradient(90deg,#2ecc71,#a4f000)"
     if pct >= 55:
@@ -706,6 +724,7 @@ def bar_gradient(pct: int) -> str:
     return "linear-gradient(90deg,#ff5c6a,#ff8c69)"
 
 def badge_cls(severity: str) -> str:
+    """Return CSS class for severity badge"""
     return {
         "none": "b-none",
         "low": "b-low",
@@ -714,6 +733,7 @@ def badge_cls(severity: str) -> str:
     }.get(severity, "b-low")
 
 def card_accent(severity: str, healthy: bool) -> str:
+    """Return accent color based on disease severity"""
     if healthy:
         return "#5efa5e"
     return {

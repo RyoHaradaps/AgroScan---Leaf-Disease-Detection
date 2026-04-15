@@ -1,8 +1,8 @@
-# app.py — AgroScan AI Main Application (Refactored with template.py)
+# app.py — AgroScan AI Main Application
 # ======================================
 # Main Streamlit application for leaf disease detection.
-# Handles UI layout, image upload, analysis processing, and result display.
-# ======================================
+# Handles UI layout, image upload, analysis processing, weather integration,
+# and result display with interactive cards.
 
 import streamlit as st
 from PIL import Image
@@ -23,6 +23,7 @@ from template import (
     CropWeatherRequirements, WeatherComparison
 )
 
+
 # ==============================================
 # PAGE CONFIGURATION
 # ==============================================
@@ -33,6 +34,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+
 # ==============================================
 # SESSION STATE INITIALIZATION
 # ==============================================
@@ -42,7 +44,8 @@ if "weather_data" not in st.session_state:
     st.session_state.weather_data = None
 if "selected_location" not in st.session_state:
     st.session_state.selected_location = "auto"
-    
+
+
 # ==============================================
 # HIDE STREAMLIT UI ELEMENTS
 # ==============================================
@@ -54,6 +57,7 @@ hide_streamlit_style = """
     </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 
 # ==============================================
 # FORCE PERMANENT DARK MODE
@@ -100,12 +104,13 @@ st.markdown("""
 </script>
 """, unsafe_allow_html=True)
 
+
 # ==============================================
 # STYLE INJECTION
 # ==============================================
 inject_styles()
 
-# Force remove Streamlit footer
+# Force remove Streamlit footer with JavaScript
 st.markdown("""
 <script>
     setTimeout(function() {
@@ -119,11 +124,12 @@ st.markdown("""
 </script>
 """, unsafe_allow_html=True)
 
+
 # ==============================================
-# DEBUG: DISCOVER MODEL CLASSES (Optional - can remove later)
+# DEBUG: DISCOVER MODEL CLASSES
 # ==============================================
 def discover_model_classes():
-    """Discover what crops/diseases your model can detect"""
+    """Discover what crops/diseases the model can detect"""
     try:
         import predict
         if hasattr(predict, 'model'):
@@ -139,7 +145,7 @@ def discover_model_classes():
         print(f"Could not discover classes: {e}")
     return None
 
-# Optional debug info in sidebar
+# Display debug info in sidebar (can be removed in production)
 with st.sidebar:
     st.write("### Debug Info")
     model_classes = discover_model_classes()
@@ -161,6 +167,7 @@ with st.sidebar:
         st.write(f"### Unique Crops: {len(unique_crops)}")
         st.write(sorted(list(unique_crops)))
 
+
 # ==============================================
 # HEADER SECTION
 # ==============================================
@@ -176,6 +183,7 @@ st.markdown(f"""
 
 st.markdown('<div style="height: 40px;"></div>', unsafe_allow_html=True)
 
+
 # ==============================================
 # TWO-COLUMN LAYOUT
 # ==============================================
@@ -184,11 +192,12 @@ col_left, col_right = st.columns(
     gap="small"
 )
 
+
 # ==============================================
 # LEFT COLUMN - IMAGE UPLOAD & WEATHER SECTION
 # ==============================================
 with col_left:
-    # Image Analysis Section
+    # Image Analysis Section Header
     st.markdown(f'''
     <div class="ag-label" style="
         font-size: {StylingConfig.section_label_font_size};
@@ -200,6 +209,7 @@ with col_left:
     ">Image Analysis</div>
     ''', unsafe_allow_html=True)
     
+    # File Uploader Widget
     uploaded = st.file_uploader(
         "Upload",
         type=AppConfig.allowed_formats,
@@ -207,6 +217,7 @@ with col_left:
         key="image_uploader"
     )
     
+    # Display uploaded image preview
     if uploaded:
         img = Image.open(uploaded).convert("RGB")
         
@@ -225,7 +236,7 @@ with col_left:
         """, unsafe_allow_html=True)
     
     # ==============================================
-    # WEATHER LOCATION SECTION - HEADER ON TOP, VALUES BELOW (NO CAPTION)
+    # WEATHER LOCATION WIDGET
     # ==============================================
     st.markdown('<div style="height: 25px;"></div>', unsafe_allow_html=True)
     
@@ -242,19 +253,19 @@ with col_left:
         st.markdown('<span style="color: #7ec8e0; font-size: 0.85rem; letter-spacing: 1px;">💧 HUMIDITY</span>', unsafe_allow_html=True)
     
     with col4_header:
-        st.markdown('', unsafe_allow_html=True)  # Empty for search button alignment
+        st.markdown('', unsafe_allow_html=True)
     
     # Row 2: Values
     col1_val, col2_val, col3_val, col4_val = st.columns([1.2, 0.8, 0.8, 0.4])
     
     with col1_val:
         if st.session_state.weather_data:
-            # Get location name and pincode
+            # Extract location information
             location_name = st.session_state.weather_data.get('location', '')
             pincode = st.session_state.weather_data.get('pincode', '')
             city = st.session_state.weather_data.get('city', '')
             
-            # Build display text with both location and pincode
+            # Build formatted display text
             if location_name and location_name != "Unknown (using demo data)":
                 if pincode:
                     display_text = f"{location_name} ({pincode})"
@@ -272,7 +283,7 @@ with col_left:
             st.markdown(f'<span style="color: #e8f4f0; font-weight: 500; font-size: 1.2rem; padding-left: 20px; margin-top: 10px; display: inline-block;">{display_text}</span>', unsafe_allow_html=True)
         else:
             location_input = st.text_input("", placeholder="Enter pincode", label_visibility="collapsed", key="loc_input")
-            
+    
     with col2_val:
         if st.session_state.weather_data:
             st.markdown(f'<span style="color: #a4f000; font-size: 1.1rem; font-weight: 600; padding-left: 40px; margin-top: 10px; display: inline-block;">{st.session_state.weather_data["temp"]}°C</span>', unsafe_allow_html=True)
@@ -295,9 +306,9 @@ with col_left:
             st.markdown('<div style="margin-top: -25px;"></div>', unsafe_allow_html=True)
             search_clicked = st.button("🔍", key="search_btn", use_container_width=True)
     
-    # Fetch weather logic
+    # Fetch weather data when search is clicked
     if 'search_clicked' in locals() and search_clicked and location_input:
-        with st.spinner("Fetching weather..."):
+        with st.spinner("Fetching weather data..."):
             if location_input.isdigit():
                 weather = WeatherService.get_weather_by_pincode(location_input)
             else:
@@ -307,7 +318,9 @@ with col_left:
     
     st.markdown('<div style="height: 40px;"></div>', unsafe_allow_html=True)
     
-    # Run Analysis Button
+    # ==============================================
+    # RUN ANALYSIS BUTTON
+    # ==============================================
     run_analysis = st.button(
         "⬡ Run Analysis", 
         disabled=(uploaded is None), 
@@ -320,27 +333,26 @@ with col_left:
 
         with st.spinner("Running model inference..."):
             time.sleep(0.5)
-
-            # Real model prediction
+            
+            # Perform disease prediction
             disease, confidence = predict_image(img)
             
-            # Get remedy and AI advice
+            # Get treatment recommendation and AI advice
             remedy = get_remedy(disease)
             ai_advice = get_ai_advice(disease, confidence)
 
-            # Process using template
+            # Process and store results
             st.session_state.result = ResultProcessor.process_prediction(
                 disease, confidence, remedy, ai_advice
             )
             st.rerun()
     
     # ==============================================
-    # WEATHER CARD - Display after Run Analysis button
+    # WEATHER COMPARISON CARD
     # ==============================================
-    # Add spacing
     st.markdown('<div style="height: 25px;"></div>', unsafe_allow_html=True)
     
-    # Display weather comparison card if conditions are met
+    # Display weather comparison card when both weather and prediction exist
     if st.session_state.weather_data and st.session_state.result:
         comparison = WeatherComparison.compare(
             actual_temp=st.session_state.weather_data['temp'],
@@ -353,6 +365,7 @@ with col_left:
     elif not st.session_state.weather_data:
         st.info("📍 Enter a location above and click 'Get Weather' to see crop suitability analysis")
 
+
 # ==============================================
 # RIGHT COLUMN - RESULTS DISPLAY
 # ==============================================
@@ -360,11 +373,10 @@ with col_right:
     res = st.session_state.result
     
     if res:
-        
         # Create two sub-columns for side-by-side layout
         col_disease, col_analysis = st.columns([0.5, 0.5], gap="small")
         
-        # Card 1: Detected Disease (Left sub-column)
+        # Card 1: Detected Disease
         with col_disease:
             UIComponents.render_disease_card(
                 disease=res["disease"],
@@ -374,7 +386,7 @@ with col_right:
                 accent_color=res["accent_color"]
             )
         
-        # Card 2: Combined Confidence + Insight Card (Right sub-column)
+        # Card 2: Confidence Score + Insight
         with col_analysis:
             UIComponents.render_confidence_insight_card(
                 confidence=res["confidence"],
@@ -382,18 +394,17 @@ with col_right:
                 accent_color=res["accent_color"]
             )
         
-        # Card 3: Suggested Solution (Full width)
+        # Card 3: Treatment Solution
         UIComponents.render_solution_card(remedy=res["remedy"])
         
-        # Card 4: AI Advisory (Full width)
+        # Card 4: AI Advisory
         UIComponents.render_ai_card(ai_advice=res["ai_advice"])
     
     else:
-        # Empty state for 4 cards
+        # Empty state display
         empty_msgs = MessageTemplates.get_empty_state_messages()
         titles = MessageTemplates.get_card_titles()
         
-        # Create two sub-columns for empty state
         col_disease, col_analysis = st.columns([0.5, 0.5], gap="small")
         
         with col_disease:
@@ -406,13 +417,13 @@ with col_right:
                 "Analysis Details", "📊", "Confidence score and insights will appear here..."
             )
         
-        # Full width cards
         UIComponents.render_empty_card(
             titles["solution"], "🌱", empty_msgs["solution"]
         )
         UIComponents.render_empty_card(
             titles["ai_advisor"], "🤖", "AI advice will appear here..."
         )
+
 
 # ==============================================
 # FOOTER
