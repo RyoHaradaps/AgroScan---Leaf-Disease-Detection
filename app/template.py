@@ -6,8 +6,9 @@
 
 from dataclasses import dataclass
 from typing import Dict, Tuple, Optional
-from config import AppColors, AppThresholds, AppLayout
 import streamlit as st
+from config import AppColors, AppThresholds, AppLayout
+
 
 # ==============================================
 # APP CONFIGURATION
@@ -15,14 +16,17 @@ import streamlit as st
 
 @dataclass(frozen=True)
 class AppConfig:
-    """Central app configuration"""
+    """Central app configuration - Change app-wide settings here"""
     name: str = "AgroScan"
     version: str = "v1.0"
     tagline: str = "Smart Leaf Disease Detection System"
     icon: str = "🌿"
     
+    # Layout ratios
     left_col_ratio: float = AppLayout.LEFT_COLUMN_RATIO
     right_col_ratio: float = AppLayout.RIGHT_COLUMN_RATIO
+    
+    # File upload settings
     allowed_formats: Tuple[str, ...] = AppLayout.ALLOWED_FORMATS
     max_file_size_mb: int = AppLayout.MAX_FILE_SIZE_MB
 
@@ -131,7 +135,7 @@ class TextFormatter:
     
     @staticmethod
     def extract_plant_name(disease: str) -> str:
-        """Extract plant name from disease string (e.g., 'Potato' from 'Potato_Late_blight')"""
+        """Extract plant name from disease string"""
         if "_" in disease:
             plant = disease.split("_")[0]
         else:
@@ -146,11 +150,10 @@ class TextFormatter:
 # ==============================================
 
 class SeverityCalculator:
-    """Centralized severity calculation logic based on confidence scores"""
+    """Centralized severity calculation logic"""
     
     @staticmethod
     def calculate(confidence: int, is_healthy: bool) -> str:
-        """Calculate severity level based on confidence and health status"""
         if is_healthy:
             return "none"
         
@@ -163,7 +166,6 @@ class SeverityCalculator:
     
     @staticmethod
     def get_accent_color(severity: str, is_healthy: bool) -> str:
-        """Get accent color based on severity level"""
         if is_healthy:
             return UIColors.ok
         
@@ -176,7 +178,6 @@ class SeverityCalculator:
     
     @staticmethod
     def get_badge_class(severity: str) -> str:
-        """Get CSS badge class for severity level"""
         badge_map = {
             "none": "b-none",
             "low": "b-low",
@@ -187,16 +188,14 @@ class SeverityCalculator:
 
 
 class MessageTemplates:
-    """Centralized message templates for all text content"""
+    """Centralized message templates"""
     
     @staticmethod
     def get_insight(disease: str, confidence: int) -> str:
-        """Generate system insight message"""
         return f"Model predicts {disease} with {confidence}% confidence."
     
     @staticmethod
     def get_empty_state_messages() -> Dict[str, str]:
-        """Empty state placeholder messages"""
         return {
             "disease": "Upload an image to begin analysis...",
             "confidence": "Awaiting prediction results...",
@@ -206,7 +205,6 @@ class MessageTemplates:
     
     @staticmethod
     def get_card_titles() -> Dict[str, str]:
-        """Card title templates"""
         return {
             "disease": "Detected Disease",
             "confidence": "Confidence Score",
@@ -225,7 +223,6 @@ class UIComponents:
     
     @staticmethod
     def get_header_style() -> str:
-        """Generate consistent header style string"""
         return (
             f"font-size: {StylingConfig.card_header_font_size}; "
             f"letter-spacing: {StylingConfig.card_header_letter_spacing}; "
@@ -236,7 +233,6 @@ class UIComponents:
     
     @staticmethod
     def render_result_card(title: str, icon: str, content_html: str, accent_color: str):
-        """Render a result card with HTML content"""
         card_html = f'''
         <div class="ag-card" style="--card-accent:{accent_color};">
             <div class="ag-card-hdr" style="{UIComponents.get_header_style()}">
@@ -250,7 +246,6 @@ class UIComponents:
     
     @staticmethod
     def render_empty_card(title: str, icon: str, placeholder: str):
-        """Render an empty state card"""
         empty_html = f'<p class="ag-empty">{placeholder}</p>'
         UIComponents.render_result_card(
             title=title,
@@ -261,7 +256,6 @@ class UIComponents:
     
     @staticmethod
     def render_disease_card(disease: str, plant: str, severity: str, is_healthy: bool, accent_color: str):
-        """Render disease detection card"""
         header_style = UIComponents.get_header_style()
         
         if is_healthy:
@@ -299,7 +293,7 @@ class UIComponents:
     
     @staticmethod
     def render_confidence_insight_card(confidence: int, insight: str, accent_color: str):
-        """Render combined confidence score and insight card"""
+        """Render combined confidence + insight card with centralized styling"""
         from styles import bar_gradient
         grad = bar_gradient(confidence)
         header_style = UIComponents.get_header_style()
@@ -331,7 +325,7 @@ class UIComponents:
         header_style = UIComponents.get_header_style()
         
         st.markdown(f'''
-        <div class="ag-card" style="--card-accent:#2ef2e2;">
+        <div class="ag-card" style="--card-accent:{AppColors.CARD_ACCENT_SOLUTION};">
             <div class="ag-card-hdr" style="{header_style}">
                 <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">🌱</span>
                 Suggested Solution
@@ -357,37 +351,29 @@ class UIComponents:
             
             clean_line = line.strip()
             
-            # Check for main numbered points (1., 2., 3., etc.)
             if len(clean_line) > 1 and clean_line[0].isdigit() and clean_line[1] == '.':
-                # Close previous section if exists
                 if current_section:
                     content_html += f'<div class="ag-remedy" style="margin-bottom: 16px; line-height: 1.7;">{current_section}</div>'
                     current_section = ""
                 
-                # Start new main point
                 parts = clean_line.split('.', 1)
                 if len(parts) == 2:
-                    current_section = f'<strong style="color: #a4f000; font-size: 1rem;">{parts[0]}.</strong>{parts[1]}'
+                    current_section = f'<strong style="color: {AppColors.LIME}; font-size: 1rem;">{parts[0]}.</strong>{parts[1]}'
                 else:
                     current_section = clean_line
             
-            # Check for sub-points (a., b., c., •, -, *)
             elif (len(clean_line) > 1 and clean_line[0].isalpha() and clean_line[1] == '.') or \
                  clean_line.startswith('•') or clean_line.startswith('-') or clean_line.startswith('*'):
-                # Add to current section with indentation
                 if current_section:
-                    current_section += f'<br><span style="display: inline-block; margin-left: 25px; margin-top: 6px; color: #2ef2e2;">{clean_line}</span>'
+                    current_section += f'<br><span style="display: inline-block; margin-left: 25px; margin-top: 6px; color: {AppColors.TEAL};">{clean_line}</span>'
                 else:
                     current_section = f'<span style="display: inline-block; margin-left: 25px;">{clean_line}</span>'
-            
-            # Regular text continuation
             else:
                 if current_section:
                     current_section += f' {clean_line}'
                 else:
                     current_section = clean_line
         
-        # Close the last section
         if current_section:
             content_html += f'<div class="ag-remedy" style="margin-bottom: 16px; line-height: 1.7;">{current_section}</div>'
         
@@ -395,7 +381,7 @@ class UIComponents:
             content_html = f'<div class="ag-remedy">{ai_advice}</div>'
         
         st.markdown(f'''
-        <div class="ag-card" style="--card-accent:#A4F000;">
+        <div class="ag-card" style="--card-accent:{AppColors.CARD_ACCENT_AI};">
             <div class="ag-card-hdr" style="{header_style}">
                 <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">🤖</span>
                 AI Advisory
@@ -406,73 +392,73 @@ class UIComponents:
     
     @staticmethod
     def render_weather_comparison_card(comparison_data: dict):
-        """Render weather comparison card showing ideal vs actual conditions"""
+        """Render weather comparison card using centralized colors"""
         
         # Determine accent color based on suitability score
-        if comparison_data['overall_score'] >= 80:
-            accent_color = "#5efa5e"
-        elif comparison_data['overall_score'] >= 60:
-            accent_color = "#a4f000"
-        elif comparison_data['overall_score'] >= 40:
-            accent_color = "#ffb347"
+        if comparison_data['overall_score'] >= AppThresholds.SUITABILITY_EXCELLENT:
+            accent_color = AppColors.SUITABILITY_EXCELLENT
+        elif comparison_data['overall_score'] >= AppThresholds.SUITABILITY_GOOD:
+            accent_color = AppColors.SUITABILITY_GOOD
+        elif comparison_data['overall_score'] >= AppThresholds.SUITABILITY_MODERATE:
+            accent_color = AppColors.SUITABILITY_MODERATE
         else:
-            accent_color = "#ff5c6a"
+            accent_color = AppColors.SUITABILITY_POOR
         
-        # Set temperature display values
+        # Set temperature display values using config colors
         if comparison_data['temp_status'] == 'high':
             temp_arrow = "▲"
-            temp_color = "#ffb347"
+            temp_color = AppColors.TEMP_HIGH
             temp_delta = f"{comparison_data['temp_deviation']}°C above ideal"
         elif comparison_data['temp_status'] == 'low':
             temp_arrow = "▼"
-            temp_color = "#4a8a7a"
+            temp_color = AppColors.TEMP_LOW
             temp_delta = f"{comparison_data['temp_deviation']}°C below ideal"
         else:
             temp_arrow = "✓"
-            temp_color = "#5efa5e"
+            temp_color = AppColors.TEMP_IDEAL
             temp_delta = "Within ideal range"
         
-        # Set humidity display values
+        # Set humidity display values using config colors
         if comparison_data['humidity_status'] == 'high':
             humidity_arrow = "▲"
-            humidity_color = "#ffb347"
+            humidity_color = AppColors.HUMIDITY_HIGH
             humidity_delta = f"{comparison_data['humidity_deviation']}% above ideal"
         elif comparison_data['humidity_status'] == 'low':
             humidity_arrow = "▼"
-            humidity_color = "#4a8a7a"
+            humidity_color = AppColors.HUMIDITY_LOW
             humidity_delta = f"{comparison_data['humidity_deviation']}% below ideal"
         else:
             humidity_arrow = "✓"
-            humidity_color = "#5efa5e"
+            humidity_color = AppColors.HUMIDITY_IDEAL
             humidity_delta = "Within ideal range"
         
         # Set suitability emoji and color
-        if comparison_data['overall_score'] >= 80:
+        if comparison_data['overall_score'] >= AppThresholds.SUITABILITY_EXCELLENT:
             suit_emoji = "🟢"
-            suit_color = "#5efa5e"
-        elif comparison_data['overall_score'] >= 60:
+            suit_color = AppColors.SUITABILITY_EXCELLENT
+        elif comparison_data['overall_score'] >= AppThresholds.SUITABILITY_GOOD:
             suit_emoji = "🟡"
-            suit_color = "#a4f000"
-        elif comparison_data['overall_score'] >= 40:
+            suit_color = AppColors.SUITABILITY_GOOD
+        elif comparison_data['overall_score'] >= AppThresholds.SUITABILITY_MODERATE:
             suit_emoji = "🟠"
-            suit_color = "#ffb347"
+            suit_color = AppColors.SUITABILITY_MODERATE
         else:
             suit_emoji = "🔴"
-            suit_color = "#ff5c6a"
+            suit_color = AppColors.SUITABILITY_POOR
         
         # Build recommendations HTML
         recommendations_html = ""
         if comparison_data["recommendations"]:
             for rec in comparison_data["recommendations"]:
-                recommendations_html += f'<div style="background: rgba(255,179,71,0.1); border-left: 3px solid #ffb347; padding: 8px 12px; margin: 8px 0; border-radius: 6px;">{rec}</div>'
+                recommendations_html += f'<div style="background: rgba(255,179,71,0.1); border-left: 3px solid {AppColors.WARN}; padding: 8px 12px; margin: 8px 0; border-radius: 6px;">{rec}</div>'
         else:
-            recommendations_html = '<div style="color: #5efa5e;">✓ Weather conditions are ideal for this crop</div>'
+            recommendations_html = f'<div style="color: {AppColors.OK};">✓ Weather conditions are ideal for this crop</div>'
         
         # Build disease risk HTML
         if comparison_data.get("disease_risk"):
-            disease_risk_html = f'<div style="background: rgba(255,92,106,0.1); border-left: 3px solid #ff5c6a; padding: 8px 12px; border-radius: 6px;">⚠️ High-risk diseases: {", ".join(comparison_data["disease_risk"][:3])}</div>'
+            disease_risk_html = f'<div style="background: rgba(255,92,106,0.1); border-left: 3px solid {AppColors.DANGER}; padding: 8px 12px; border-radius: 6px;">⚠️ High-risk diseases: {", ".join(comparison_data["disease_risk"][:3])}</div>'
         else:
-            disease_risk_html = '<div style="background: rgba(46,242,226,0.1); border-left: 3px solid #2ef2e2; padding: 8px 12px; border-radius: 6px;">📊 Monitor field regularly for early signs of disease</div>'
+            disease_risk_html = f'<div style="background: rgba(46,242,226,0.1); border-left: 3px solid {AppColors.TEAL}; padding: 8px 12px; border-radius: 6px;">📊 Monitor field regularly for early signs of disease</div>'
         
         # Complete HTML card
         html_string = f'''
@@ -483,10 +469,8 @@ class UIComponents:
             </div>
             <div style="margin-bottom: {StylingConfig.card_content_margin_bottom};">
                 
-                <!-- Two column layout for requirements vs current -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 20px;">
                     
-                    <!-- LEFT COLUMN: Crop Requirements -->
                     <div>
                         <div style="font-weight: 600; margin-bottom: 15px; color: #e8f4f0;">📋 CROP REQUIREMENTS</div>
                         
@@ -494,22 +478,21 @@ class UIComponents:
                             <div style="color: #7ec8e0; font-size: 0.8rem;">Temperature Range</div>
                             <div style="display: flex; align-items: baseline; gap: 10px;">
                                 <span style="font-size: 1.5rem; font-weight: 600; color: #e8f4f0;">{comparison_data['ideal_temp']}</span>
-                                <span style="color: #5efa5e; font-size: 0.9rem;">✓</span>
+                                <span style="color: {AppColors.OK}; font-size: 0.9rem;">✓</span>
                             </div>
-                            <div style="color: #5efa5e; font-size: 0.75rem;">Optimal: {comparison_data['ideal_temp_optimal']}</div>
+                            <div style="color: {AppColors.OK}; font-size: 0.75rem;">Optimal: {comparison_data['ideal_temp_optimal']}</div>
                         </div>
                         
                         <div>
                             <div style="color: #7ec8e0; font-size: 0.8rem;">Humidity Range</div>
                             <div style="display: flex; align-items: baseline; gap: 10px;">
                                 <span style="font-size: 1.5rem; font-weight: 600; color: #e8f4f0;">{comparison_data['ideal_humidity']}</span>
-                                <span style="color: #5efa5e; font-size: 0.9rem;">✓</span>
+                                <span style="color: {AppColors.OK}; font-size: 0.9rem;">✓</span>
                             </div>
-                            <div style="color: #5efa5e; font-size: 0.75rem;">Ideal growing conditions</div>
+                            <div style="color: {AppColors.OK}; font-size: 0.75rem;">Ideal growing conditions</div>
                         </div>
                     </div>
                     
-                    <!-- RIGHT COLUMN: Current Conditions -->
                     <div style="border-left: 1px solid rgba(164,240,0,0.2); padding-left: 20px;">
                         <div style="font-weight: 600; margin-bottom: 15px; color: #e8f4f0;">📍 CURRENT CONDITIONS</div>
                         
@@ -533,7 +516,6 @@ class UIComponents:
                     </div>
                 </div>
                 
-                <!-- Overall Suitability Section -->
                 <div style="margin: 20px 0 15px 0;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                         <span style="color: #7ec8e0;">Overall Suitability</span>
@@ -546,13 +528,11 @@ class UIComponents:
                 
                 <div style="border-top: 1px solid rgba(164,240,0,0.2); margin: 15px 0;"></div>
                 
-                <!-- Recommendations Section -->
                 <div style="font-weight: 600; margin-bottom: 10px; color: #e8f4f0;">💡 MANAGEMENT RECOMMENDATIONS</div>
                 {recommendations_html}
                 
                 <div style="border-top: 1px solid rgba(164,240,0,0.2); margin: 15px 0;"></div>
                 
-                <!-- Disease Risk Section -->
                 <div style="font-weight: 600; margin-bottom: 10px; color: #e8f4f0;">⚠️ DISEASE RISK ALERT</div>
                 {disease_risk_html}
                 
@@ -560,7 +540,6 @@ class UIComponents:
         </div>
         '''
         
-        # Render using st.html for proper HTML rendering
         st.html(html_string)
 
 
@@ -638,38 +617,32 @@ class CropWeatherRequirements:
     @staticmethod
     def get_requirements(crop_name: str) -> dict:
         """Get weather requirements for a crop with fuzzy matching"""
-        # Exact match first
         if crop_name in CropWeatherRequirements.REQUIREMENTS:
             return CropWeatherRequirements.REQUIREMENTS[crop_name]
         
-        # Case-insensitive match
         for crop in CropWeatherRequirements.REQUIREMENTS:
             if crop.lower() == crop_name.lower():
                 return CropWeatherRequirements.REQUIREMENTS[crop]
         
-        # Partial match for disease names like "Potato_Early_blight" -> "Potato"
         for crop in CropWeatherRequirements.REQUIREMENTS:
             if crop.lower() in crop_name.lower() or crop_name.lower() in crop.lower():
                 return CropWeatherRequirements.REQUIREMENTS[crop]
         
-        # Default fallback
         return CropWeatherRequirements.REQUIREMENTS.get("Potato")
     
     @staticmethod
     def get_supported_crops() -> list:
-        """Return list of supported crops"""
         return list(CropWeatherRequirements.REQUIREMENTS.keys())
 
 
 class WeatherComparison:
-    """Compare actual vs ideal weather conditions for crops"""
+    """Compare actual vs ideal weather conditions"""
     
     @staticmethod
     def compare(actual_temp: float, actual_humidity: float, crop_name: str) -> dict:
-        """Compare actual weather with crop requirements and generate insights"""
         req = CropWeatherRequirements.get_requirements(crop_name)
         
-        # Temperature comparison logic
+        # Temperature comparison
         temp_status = "ideal"
         temp_deviation = 0
         if actual_temp < req["temp_min"]:
@@ -679,7 +652,7 @@ class WeatherComparison:
             temp_status = "high"
             temp_deviation = round(actual_temp - req["temp_max"], 1)
         
-        # Humidity comparison logic
+        # Humidity comparison
         humidity_status = "ideal"
         humidity_deviation = 0
         if actual_humidity < req["humidity_min"]:
@@ -689,7 +662,7 @@ class WeatherComparison:
             humidity_status = "high"
             humidity_deviation = round(actual_humidity - req["humidity_max"], 1)
         
-        # Generate actionable recommendations
+        # Generate recommendations
         recommendations = []
         if temp_status == "high":
             recommendations.append(req["alert_messages"]["high_temp"])
@@ -701,29 +674,28 @@ class WeatherComparison:
         elif humidity_status == "low":
             recommendations.append(req["alert_messages"].get("low_humidity", "💧 Low humidity - Increase moisture around plants"))
         
-        # Additional rainfall warning for dry conditions
         if actual_humidity < req["humidity_min"] and temp_status == "high":
             recommendations.append(req["alert_messages"].get("low_rainfall", "💧 Monitor soil moisture"))
         
-        # Calculate overall suitability score (0-100)
+        # Calculate overall suitability score
         temp_score = 100 - (temp_deviation * 5) if temp_deviation > 0 else 100
         humidity_score = 100 - (humidity_deviation * 3) if humidity_deviation > 0 else 100
         overall_score = round((temp_score + humidity_score) / 2)
         overall_score = max(0, min(100, overall_score))
         
         # Determine suitability level
-        if overall_score >= 80:
+        if overall_score >= AppThresholds.SUITABILITY_EXCELLENT:
             suitability = "Excellent"
-            suitability_color = "#5efa5e"
-        elif overall_score >= 60:
+            suitability_color = AppColors.SUITABILITY_EXCELLENT
+        elif overall_score >= AppThresholds.SUITABILITY_GOOD:
             suitability = "Good"
-            suitability_color = "#a4f000"
-        elif overall_score >= 40:
+            suitability_color = AppColors.SUITABILITY_GOOD
+        elif overall_score >= AppThresholds.SUITABILITY_MODERATE:
             suitability = "Moderate"
-            suitability_color = "#ffb347"
+            suitability_color = AppColors.SUITABILITY_MODERATE
         else:
             suitability = "Poor"
-            suitability_color = "#ff5c6a"
+            suitability_color = AppColors.SUITABILITY_POOR
         
         return {
             "crop": crop_name,
@@ -753,11 +725,9 @@ class ResultProcessor:
     
     @staticmethod
     def process_prediction(disease: str, confidence: int, remedy: str, ai_advice: str) -> Dict:
-        """Process raw prediction into formatted result dictionary"""
         confidence_pct = round(confidence * 100) if confidence <= 1 else confidence
         formatted_disease = TextFormatter.format_disease_name(disease)
         
-        # Check if the plant is healthy
         is_healthy = any(
             keyword.lower() in formatted_disease.lower() or keyword.lower() in disease.lower()
             for keyword in Thresholds.healthy_keywords
@@ -789,12 +759,10 @@ class Validators:
     
     @staticmethod
     def validate_file_size(file_bytes: bytes) -> bool:
-        """Check if file size is within limits"""
         size_mb = len(file_bytes) / (1024 * 1024)
         return size_mb <= AppConfig.max_file_size_mb
     
     @staticmethod
     def validate_file_extension(filename: str) -> bool:
-        """Check if file extension is allowed"""
         ext = filename.split(".")[-1].lower()
         return ext in AppConfig.allowed_formats

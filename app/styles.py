@@ -695,6 +695,43 @@ div[data-testid="stButton"] button {{
     min-width: 50px !important;
     margin-top: -20px !important;
 }}
+
+/* ============================================
+   UTILITY SPACING CLASSES
+   ============================================ */
+.ag-spacer-xs {{ height: 5px; }}
+.ag-spacer-sm {{ height: 15px; }}
+.ag-spacer-md {{ height: 25px; }}
+.ag-spacer-lg {{ height: 40px; }}
+.ag-spacer-xl {{ height: 60px; }}
+
+/* ============================================
+   WEATHER WIDGET COLORS (from config)
+   ============================================ */
+.ag-temp-high {{ color: {AppColors.TEMP_HIGH}; }}
+.ag-temp-low {{ color: {AppColors.TEMP_LOW}; }}
+.ag-temp-ideal {{ color: {AppColors.TEMP_IDEAL}; }}
+.ag-humidity-high {{ color: {AppColors.HUMIDITY_HIGH}; }}
+.ag-humidity-low {{ color: {AppColors.HUMIDITY_LOW}; }}
+.ag-humidity-ideal {{ color: {AppColors.HUMIDITY_IDEAL}; }}
+
+/* ============================================
+   TEXT COLORS
+   ============================================ */
+.ag-text-lime {{ color: {AppColors.LIME}; }}
+.ag-text-teal {{ color: {AppColors.TEAL}; }}
+.ag-text-white {{ color: {AppColors.WHITE}; }}
+.ag-text-mid {{ color: {AppColors.MID}; }}
+.ag-text-dim {{ color: {AppColors.DIM}; }}
+
+/* ============================================
+   HEADER STYLES FOR WEATHER WIDGET
+   ============================================ */
+.ag-weather-header {{
+    color: #7ec8e0;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}}
 """
 
 

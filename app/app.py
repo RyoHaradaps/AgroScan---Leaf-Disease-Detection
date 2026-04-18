@@ -181,7 +181,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown('<div style="height: 40px;"></div>', unsafe_allow_html=True)
+st.markdown('<div class="ag-spacer-lg"></div>', unsafe_allow_html=True)
 
 
 # ==============================================
@@ -238,19 +238,19 @@ with col_left:
     # ==============================================
     # WEATHER LOCATION WIDGET
     # ==============================================
-    st.markdown('<div style="height: 25px;"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="ag-spacer-md"></div>', unsafe_allow_html=True)
     
     # Row 1: Headers
     col1_header, col2_header, col3_header, col4_header = st.columns([1.2, 0.8, 0.8, 0.4])
     
     with col1_header:
-        st.markdown('<span style="color: #7ec8e0; font-size: 0.85rem; letter-spacing: 1px;">📍 PINCODE</span>', unsafe_allow_html=True)
+        st.markdown('<span class="ag-weather-header">📍 PINCODE</span>', unsafe_allow_html=True)
     
     with col2_header:
-        st.markdown('<span style="color: #7ec8e0; font-size: 0.85rem; letter-spacing: 1px;">🌡️ TEMPERATURE</span>', unsafe_allow_html=True)
+        st.markdown('<span class="ag-weather-header">🌡️ TEMPERATURE</span>', unsafe_allow_html=True)
     
     with col3_header:
-        st.markdown('<span style="color: #7ec8e0; font-size: 0.85rem; letter-spacing: 1px;">💧 HUMIDITY</span>', unsafe_allow_html=True)
+        st.markdown('<span class="ag-weather-header">💧 HUMIDITY</span>', unsafe_allow_html=True)
     
     with col4_header:
         st.markdown('', unsafe_allow_html=True)
@@ -316,7 +316,7 @@ with col_left:
             st.session_state.weather_data = weather
             st.rerun()
     
-    st.markdown('<div style="height: 40px;"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="ag-spacer-lg"></div>', unsafe_allow_html=True)
     
     # ==============================================
     # RUN ANALYSIS BUTTON
@@ -350,7 +350,7 @@ with col_left:
     # ==============================================
     # WEATHER COMPARISON CARD
     # ==============================================
-    st.markdown('<div style="height: 25px;"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="ag-spacer-md"></div>', unsafe_allow_html=True)
     
     # Display weather comparison card when both weather and prediction exist
     if st.session_state.weather_data and st.session_state.result:
