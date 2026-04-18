@@ -6,6 +6,7 @@
 
 from dataclasses import dataclass
 from typing import Dict, Tuple, Optional
+from config import AppColors, AppThresholds, AppLayout
 import streamlit as st
 
 # ==============================================
@@ -14,19 +15,16 @@ import streamlit as st
 
 @dataclass(frozen=True)
 class AppConfig:
-    """Central app configuration - Change app-wide settings here"""
+    """Central app configuration"""
     name: str = "AgroScan"
     version: str = "v1.0"
     tagline: str = "Smart Leaf Disease Detection System"
     icon: str = "🌿"
     
-    # Layout ratios (left column: image upload, right column: results)
-    left_col_ratio: float = 0.42
-    right_col_ratio: float = 0.58
-    
-    # File upload settings
-    allowed_formats: Tuple[str, ...] = ("jpg", "jpeg", "png")
-    max_file_size_mb: int = 10
+    left_col_ratio: float = AppLayout.LEFT_COLUMN_RATIO
+    right_col_ratio: float = AppLayout.RIGHT_COLUMN_RATIO
+    allowed_formats: Tuple[str, ...] = AppLayout.ALLOWED_FORMATS
+    max_file_size_mb: int = AppLayout.MAX_FILE_SIZE_MB
 
 
 @dataclass(frozen=True)
@@ -88,26 +86,26 @@ class StylingConfig:
 @dataclass(frozen=True)
 class Thresholds:
     """Confidence and severity thresholds"""
-    high_confidence: int = 85
-    medium_confidence: int = 60
-    low_confidence: int = 0
-    healthy_keywords: Tuple[str, ...] = ("Healthy", "health", "good condition")
+    high_confidence: int = AppThresholds.CONFIDENCE_HIGH
+    medium_confidence: int = AppThresholds.CONFIDENCE_MEDIUM
+    low_confidence: int = AppThresholds.CONFIDENCE_LOW
+    healthy_keywords: Tuple[str, ...] = AppThresholds.HEALTHY_KEYWORDS
 
 
 @dataclass(frozen=True)
 class UIColors:
-    """Centralized color scheme for the application"""
-    lime: str = "#a4f000"
-    teal: str = "#2ef2e2"
-    warn: str = "#ffb347"
-    danger: str = "#ff5c6a"
-    ok: str = "#5efa5e"
-    bg_root: str = "#060d10"
-    border: str = "#14303f"
-    border_hi: str = "#1d4a5c"
-    mid: str = "#4a8a7a"
-    dim: str = "#1e4a3a"
-    white: str = "#e8f4f0"
+    """Centralized color scheme - Uses config"""
+    lime: str = AppColors.LIME
+    teal: str = AppColors.TEAL
+    warn: str = AppColors.WARN
+    danger: str = AppColors.DANGER
+    ok: str = AppColors.OK
+    bg_root: str = AppColors.BG_ROOT
+    border: str = AppColors.BORDER
+    border_hi: str = AppColors.BORDER_HI
+    mid: str = AppColors.MID
+    dim: str = AppColors.DIM
+    white: str = AppColors.WHITE
 
 
 # ==============================================
