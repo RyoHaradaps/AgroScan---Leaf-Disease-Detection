@@ -321,64 +321,104 @@ class UIComponents:
     
     @staticmethod
     def render_solution_card(remedy: str):
-        """Render suggested solution card"""
+        """Render suggested solution card with centralized styling"""
+        from config import AppColors
+        
         header_style = UIComponents.get_header_style()
         
+        import re
+        
+        # Remove "AI-generated overview" line if present
+        lines = remedy.split('\n')
+        filtered_lines = []
+        skip_next = False
+        
+        for line in lines:
+            # Skip lines containing "AI-generated overview"
+            if 'AI-generated overview' in line:
+                continue
+            # Skip the line immediately after if it's empty or the content
+            if not line.strip() and skip_next:
+                skip_next = False
+                continue
+            filtered_lines.append(line)
+        
+        remedy = '\n'.join(filtered_lines)
+        
+        # Convert **bold** to teal-colored bold
+        formatted_remedy = re.sub(r'\*\*(.*?)\*\*', rf'<strong style="color: {AppColors.TEAL};">\1</strong>', remedy)
+        
+        # Convert lines starting with - to teal bullet points
+        lines = formatted_remedy.split('\n')
+        for i, line in enumerate(lines):
+            if line.strip().startswith('-'):
+                bullet_text = line.strip()[1:].strip()
+                lines[i] = f'  <span style="color: {AppColors.TEAL};">•</span> {bullet_text}'
+        
+        formatted_remedy = '<br>'.join(lines)
+        
         st.markdown(f'''
-        <div class="ag-card" style="--card-accent:{AppColors.CARD_ACCENT_SOLUTION};">
+        <div class="ag-card" style="--card-accent:#2ef2e2;">
             <div class="ag-card-hdr" style="{header_style}">
                 <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">🌱</span>
                 Suggested Solution
             </div>
-            <p class="ag-remedy" style="font-size: {StylingConfig.remedy_font_size}; line-height: {StylingConfig.remedy_line_height}; padding: {StylingConfig.remedy_padding};">{remedy}</p>
+            <div class="ag-remedy" style="font-size: {StylingConfig.remedy_font_size}; line-height: {StylingConfig.remedy_line_height}; padding: {StylingConfig.remedy_padding};">
+                {formatted_remedy}
+            </div>
         </div>
         ''', unsafe_allow_html=True)
     
     @staticmethod
     def render_ai_card(ai_advice: str):
-        """Render AI advisory card with main points as separate glass cards"""
+        """Render AI advisory card matching Solution Card format and spacing"""
+        from config import AppColors
+        
         header_style = UIComponents.get_header_style()
         
-        lines = str(ai_advice).split('\n')
+        import re
         
-        content_html = ""
-        current_section = ""
+        # Convert **bold** to teal-colored bold
+        formatted_advice = re.sub(r'\*\*(.*?)\*\*', rf'<strong style="color: {AppColors.TEAL};">\1</strong>', ai_advice)
+        
+        # Split into lines and process
+        lines = formatted_advice.split('\n')
+        processed_lines = []
         
         for line in lines:
-            line = line.rstrip()
-            if not line:
-                continue
-            
-            clean_line = line.strip()
-            
-            if len(clean_line) > 1 and clean_line[0].isdigit() and clean_line[1] == '.':
-                if current_section:
-                    content_html += f'<div class="ag-remedy" style="margin-bottom: 16px; line-height: 1.7;">{current_section}</div>'
-                    current_section = ""
-                
-                parts = clean_line.split('.', 1)
-                if len(parts) == 2:
-                    current_section = f'<strong style="color: {AppColors.LIME}; font-size: 1rem;">{parts[0]}.</strong>{parts[1]}'
-                else:
-                    current_section = clean_line
-            
-            elif (len(clean_line) > 1 and clean_line[0].isalpha() and clean_line[1] == '.') or \
-                 clean_line.startswith('•') or clean_line.startswith('-') or clean_line.startswith('*'):
-                if current_section:
-                    current_section += f'<br><span style="display: inline-block; margin-left: 25px; margin-top: 6px; color: {AppColors.TEAL};">{clean_line}</span>'
-                else:
-                    current_section = f'<span style="display: inline-block; margin-left: 25px;">{clean_line}</span>'
+            stripped = line.strip()
+            if not stripped:
+                # Add a small spacer instead of full line break
+                processed_lines.append('<div style="height: 5px;"></div>')
             else:
-                if current_section:
-                    current_section += f' {clean_line}'
+                # Check if it's a numbered section header (1., 2., 3., 4.)
+                if re.match(r'^\d+\.', stripped):
+                    # Extract number and the rest
+                    match = re.match(r'^(\d+\.)', stripped)
+                    if match:
+                        number = match.group(1)
+                        rest = stripped[len(number):].strip()
+                        # Add spacing above section headers (except first one)
+                        if any(re.match(r'^\d+\.', l) for l in lines[:lines.index(line)]):
+                            processed_lines.append('<div style="height: 10px;"></div>')
+                        processed_lines.append(f'<strong style="color: {AppColors.TEAL};">{number}</strong> {rest}')
+                    else:
+                        processed_lines.append(line)
+                # Check for sub-points (a), b), etc.)
+                elif re.match(r'^[a-z]\)', stripped):
+                    match = re.match(r'^([a-z]\)?)', stripped)
+                    if match:
+                        letter = match.group(1)
+                        rest = stripped[len(letter):].strip()
+                        processed_lines.append(f'  <span style="color: {AppColors.TEAL};">{letter}</span> {rest}')
+                    else:
+                        processed_lines.append(line)
+                # Regular text - no extra spacing
                 else:
-                    current_section = clean_line
+                    processed_lines.append(line)
         
-        if current_section:
-            content_html += f'<div class="ag-remedy" style="margin-bottom: 16px; line-height: 1.7;">{current_section}</div>'
-        
-        if not content_html:
-            content_html = f'<div class="ag-remedy">{ai_advice}</div>'
+        # Join with <br> for line breaks
+        formatted_advice = '<br>'.join(processed_lines)
         
         st.markdown(f'''
         <div class="ag-card" style="--card-accent:{AppColors.CARD_ACCENT_AI};">
@@ -386,7 +426,9 @@ class UIComponents:
                 <span class="ag-icon" style="font-size: {StylingConfig.card_icon_size};">🤖</span>
                 AI Advisory
             </div>
-            {content_html}
+            <div class="ag-remedy" style="font-size: {StylingConfig.remedy_font_size}; line-height: {StylingConfig.remedy_line_height}; padding: {StylingConfig.remedy_padding};">
+                {formatted_advice}
+            </div>
         </div>
         ''', unsafe_allow_html=True)
     

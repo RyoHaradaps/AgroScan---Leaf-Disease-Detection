@@ -11,7 +11,7 @@ import base64
 from io import BytesIO
 from predict import predict_image
 from remedies import get_remedy
-from ai_advisor import get_ai_advice
+from ai_advisor import get_ai_remedy, get_ai_advice
 import os
 from weather_service import WeatherService
 
@@ -271,7 +271,7 @@ with col_left:
             
             st.markdown(f'<span style="color: #e8f4f0; font-weight: 500; font-size: 1.2rem; padding-left: 20px; margin-top: 10px; display: inline-block;">{display_text}</span>', unsafe_allow_html=True)
         else:
-            location_input = st.text_input("", placeholder="Enter pincode", label_visibility="collapsed", key="loc_input")
+            location_input = st.text_input("Enter pincode", placeholder="Enter pincode", label_visibility="collapsed", key="loc_input")
     
     with col2_val:
         if st.session_state.weather_data:
@@ -326,9 +326,9 @@ with col_left:
             # Perform disease prediction
             disease, confidence = predict_image(img)
             
-            # Get treatment recommendation and AI advice
-            remedy = get_remedy(disease)
-            ai_advice = get_ai_advice(disease, confidence)
+            # Get AI-generated remedy and advice from Ollama
+            remedy = get_ai_remedy(disease)      # Structured treatment plan
+            ai_advice = get_ai_advice(disease, confidence)  # Detailed advisory
 
             # Process and store results
             st.session_state.result = ResultProcessor.process_prediction(
