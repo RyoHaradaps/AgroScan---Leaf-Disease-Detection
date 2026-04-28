@@ -197,18 +197,7 @@ col_left, col_right = st.columns(
 # LEFT COLUMN - IMAGE UPLOAD & WEATHER SECTION
 # ==============================================
 with col_left:
-    # Image Analysis Section Header
-    st.markdown(f'''
-    <div class="ag-label" style="
-        font-size: {StylingConfig.section_label_font_size};
-        letter-spacing: {StylingConfig.section_label_letter_spacing};
-        margin-bottom: {StylingConfig.section_label_margin_bottom};
-        margin-top: {StylingConfig.section_label_margin_top};
-        text-align: {StylingConfig.section_label_alignment};
-        justify-content: {StylingConfig.section_label_alignment};
-    ">Image Analysis</div>
-    ''', unsafe_allow_html=True)
-    
+      
     # File Uploader Widget
     uploaded = st.file_uploader(
         "Upload",
