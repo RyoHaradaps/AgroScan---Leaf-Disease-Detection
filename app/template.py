@@ -371,53 +371,32 @@ class UIComponents:
     
     @staticmethod
     def render_ai_card(ai_advice: str):
-        """Render AI advisory card matching Solution Card format and spacing"""
+        """Render AI advisory card with educational focus and emoji headers"""
         from config import AppColors
         
         header_style = UIComponents.get_header_style()
         
         import re
         
-        # Convert **bold** to teal-colored bold
-        formatted_advice = re.sub(r'\*\*(.*?)\*\*', rf'<strong style="color: {AppColors.TEAL};">\1</strong>', ai_advice)
-        
-        # Split into lines and process
-        lines = formatted_advice.split('\n')
+        # Process the AI advice to format headers nicely
+        lines = ai_advice.split('\n')
         processed_lines = []
         
         for line in lines:
             stripped = line.strip()
             if not stripped:
-                # Add a small spacer instead of full line break
                 processed_lines.append('<div style="height: 5px;"></div>')
+            elif stripped.startswith('🔬') or stripped.startswith('🌧️') or stripped.startswith('⚠️') or stripped.startswith('💡'):
+                # Emoji headers - make them teal and bold
+                processed_lines.append(f'<div style="margin-top: 10px;"><strong style="color: {AppColors.TEAL};">{stripped}</strong></div>')
+            elif stripped.startswith('-'):
+                # Bullet points - keep as is with teal bullets
+                bullet_text = stripped[1:].strip()
+                processed_lines.append(f'  <span style="color: {AppColors.TEAL};">•</span> {bullet_text}')
             else:
-                # Check if it's a numbered section header (1., 2., 3., 4.)
-                if re.match(r'^\d+\.', stripped):
-                    # Extract number and the rest
-                    match = re.match(r'^(\d+\.)', stripped)
-                    if match:
-                        number = match.group(1)
-                        rest = stripped[len(number):].strip()
-                        # Add spacing above section headers (except first one)
-                        if any(re.match(r'^\d+\.', l) for l in lines[:lines.index(line)]):
-                            processed_lines.append('<div style="height: 10px;"></div>')
-                        processed_lines.append(f'<strong style="color: {AppColors.TEAL};">{number}</strong> {rest}')
-                    else:
-                        processed_lines.append(line)
-                # Check for sub-points (a), b), etc.)
-                elif re.match(r'^[a-z]\)', stripped):
-                    match = re.match(r'^([a-z]\)?)', stripped)
-                    if match:
-                        letter = match.group(1)
-                        rest = stripped[len(letter):].strip()
-                        processed_lines.append(f'  <span style="color: {AppColors.TEAL};">{letter}</span> {rest}')
-                    else:
-                        processed_lines.append(line)
-                # Regular text - no extra spacing
-                else:
-                    processed_lines.append(line)
+                # Regular text
+                processed_lines.append(line)
         
-        # Join with <br> for line breaks
         formatted_advice = '<br>'.join(processed_lines)
         
         st.markdown(f'''

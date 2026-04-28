@@ -96,33 +96,35 @@ Important rules:
 
 
 def get_ai_advice(disease: str, confidence: int) -> str:
-    """Get detailed AI advisory from Ollama for the AI Advisory card"""
+    """Get educational AI advisory (KNOWLEDGE focused - not actions)"""
     
     # Check if Ollama is available
     if not is_ollama_available():
         return get_fallback_advice(disease, confidence)
     
-    prompt = f"""You are an agricultural expert. Provide detailed advice for {disease} (detected with {confidence}% confidence) in the following EXACT format:
+    prompt = f"""You are an agricultural educator. Provide educational information about {disease} (detected with {confidence}% confidence) in the following EXACT format:
 
-**1. What is this disease?**
-[Write 2-3 sentences explaining the disease, its symptoms, and impact]
+🔬 Understanding {disease.split('_')[0] if '_' in disease else disease} {disease.split('_')[1] if '_' in disease else 'Disease'}
+[Write 2-3 sentences explaining what causes this disease and its scientific background]
 
-**2. How does it occur?**
-[Write 2-3 sentences about causes, spread, and favorable conditions]
+🌧️ Favorable Conditions
+• [Condition 1 that promotes disease development]
+• [Condition 2 that promotes disease development]
+• [Condition 3 that promotes disease development]
 
-**3. Treatment Steps:**
-a) [First treatment step]
-b) [Second treatment step]
-c) [Third treatment step]
+⚠️ Early Warning Signs
+• [Sign 1 - visual symptom]
+• [Sign 2 - visual symptom]
+• [Sign 3 - visual symptom]
 
-**4. Prevention Tips:**
-a) [First prevention tip]
-b) [Second prevention tip]
-c) [Third prevention tip]
+💡 Why Early Detection Matters
+[Write 2 sentences explaining how quickly the disease spreads and why early action is critical]
 
 Important rules:
-- Each section MUST have the exact headers shown above with **bold** formatting
-- Use a), b), c) for bullet points under sections 3 and 4
+- Use the exact emoji headers shown above (🔬, 🌧️, ⚠️, 💡)
+- Use dashes (-) for bullet points under Favorable Conditions and Early Warning Signs
+- Focus on EDUCATION (what, why, how it spreads), not actions
+- Do NOT include treatment steps or prevention tips (those go in Suggested Solution card)
 - Keep language simple and farmer-friendly
 - Do not add any extra text before or after the format"""
 
@@ -136,7 +138,7 @@ Important rules:
                 "options": {
                     "temperature": 0.6,
                     "top_p": 0.9,
-                    "max_tokens": 700
+                    "max_tokens": 600
                 }
             },
             timeout=30
@@ -154,7 +156,6 @@ Important rules:
     except Exception as e:
         print(f"Ollama error: {e}")
         return get_fallback_advice(disease, confidence)
-
 
 def get_fallback_remedy(disease: str) -> str:
     """Fallback static remedies when Ollama is unavailable"""
@@ -278,24 +279,88 @@ def get_fallback_remedy(disease: str) -> str:
 
 
 def get_fallback_advice(disease: str, confidence: int) -> str:
-    """Fallback static advice when Ollama is unavailable"""
+    """Fallback educational advice when Ollama is unavailable"""
     
-    return f"""**1. What is this disease?**
-{disease} is a common agricultural disease that can affect crop yield and quality if not managed properly. Early detection and treatment are essential for effective control.
+    crop = disease.split('_')[0] if '_' in disease else disease.split()[0]
+    
+    fallbacks = {
+        "Potato": f"""🔬 Understanding Potato {disease.split('_')[1] if '_' in disease else 'Disease'}
+This disease is caused by a fungal pathogen that thrives in humid conditions. It's one of the most destructive diseases affecting potato crops worldwide.
 
-**2. How does it occur?**
-This disease typically occurs under favorable environmental conditions such as high humidity, poor air circulation, or stressed plants. It can spread through water splashes, contaminated tools, or infected plant debris.
+🌧️ Favorable Conditions
+• Temperatures between 15-20°C (59-68°F)
+• High humidity above 90%
+• Leaves remaining wet for 6+ hours
+• Cool nights with morning dew
 
-**3. Treatment Steps:**
-a) Remove and destroy infected plant parts immediately
-b) Apply appropriate fungicides or bactericides as recommended
-c) Monitor plants regularly for signs of recurrence
+⚠️ Early Warning Signs
+• Dark, water-soaked lesions on leaves
+• White, fuzzy growth on leaf undersides
+• Brown, rotting spots on tubers
+• Rapid spread during wet weather
 
-**4. Prevention Tips:**
-a) Practice crop rotation to break disease cycles
-b) Use disease-resistant varieties when available
-c) Maintain proper plant spacing and avoid overhead irrigation"""
+💡 Why Early Detection Matters
+This disease can destroy an entire field in 7-10 days under ideal conditions. Spores travel through wind and can infect fields miles away from the source.""",
 
+        "Tomato": f"""🔬 Understanding Tomato {disease.split('_')[1] if '_' in disease else 'Disease'}
+This is a fungal disease that spreads rapidly in wet, warm conditions. It affects both leaves and fruits, causing significant yield loss.
+
+🌧️ Favorable Conditions
+• Temperatures between 18-25°C (64-77°F)
+• Prolonged leaf wetness
+• High humidity above 85%
+• Overcrowded planting
+
+⚠️ Early Warning Signs
+• Small dark spots on lower leaves
+• Yellow halos around leaf spots
+• Sunken lesions on fruits
+• Defoliation starting from bottom
+
+💡 Why Early Detection Matters
+Once symptoms appear, the disease can spread to the entire plant within days. Early detection allows for better management and prevents crop loss.""",
+
+        "Rice": f"""🔬 Understanding Rice Disease
+This fungal disease is prevalent in dense, humid rice paddies. It can cause significant yield reduction if not identified early.
+
+🌧️ Favorable Conditions
+• High nitrogen fertilizer use
+• Dense planting
+• High humidity above 90%
+• Temperatures between 25-30°C
+
+⚠️ Early Warning Signs
+• Gray-green lesions on leaves
+• White or gray centers with brown borders
+• Infected panicles (neck blast)
+• Premature drying of plants
+
+💡 Why Early Detection Matters
+The disease spreads rapidly through water splashes and wind. Early detection helps in adjusting nitrogen levels and water management.""",
+    }
+    
+    for key, value in fallbacks.items():
+        if key in crop:
+            return value
+    
+    # Default fallback
+    return f"""🔬 Understanding {disease}
+This is a common agricultural disease that requires proper understanding for effective management.
+
+🌧️ Favorable Conditions
+• High humidity and moisture
+• Poor air circulation
+• Stress on plants
+• Warm to moderate temperatures
+
+⚠️ Early Warning Signs
+• Unusual spots or lesions on leaves
+• Discoloration of plant tissue
+• Wilting or stunted growth
+• Unusual patterns on fruits or tubers
+
+💡 Why Early Detection Matters
+Early detection of plant diseases is crucial for effective management. Most diseases spread quickly under favorable conditions, and early intervention can save your crop."""
 
 def test_ollama_connection() -> bool:
     """Test if Ollama is running and accessible"""
